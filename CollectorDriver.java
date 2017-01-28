@@ -24,7 +24,6 @@ public class CollectorDriver {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     // Entry point to the system
@@ -34,6 +33,6 @@ public class CollectorDriver {
 
         // Start collecting course information from the given token
         CourseETL cEtl = CourseETL.getInstance();
-        cEtl.runProcess();
+        cEtl.runProcess(webAddr + apiPath, token);
     }
 }
