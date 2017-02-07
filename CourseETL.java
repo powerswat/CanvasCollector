@@ -8,10 +8,13 @@ import java.util.ArrayList;
 public class CourseETL implements CanvasETLFact {
     // Import necessary classes
     private static CourseETL instance = null;
+
     private static ConfigHandler cnfgHndlr;
+    private static DBProcessor dbProcessor;
+    private static SQLProcessor sqlProcessor;
+
     private static JSONArray jsonArray;
     private static ArrayList<String> jsonCols;
-    private static DBProcessor dbProcessor;
     private static String coursePath = "courses";
     private static String pkCol = "id";
 
@@ -47,8 +50,10 @@ public class CourseETL implements CanvasETLFact {
 
     @Override
     public void insertToDB() {
+        sqlProcessor = new SQLProcessor(jsonArray, coursePath.toUpperCase());
         // Generate a sql query to create a table
-        String sql = dbProcessor.generateQuery("CREATE", jsonArray,
-                            dataPath.toUpperCase());
+        String sql = sqlProcessor.makeCreateQuery("id");
+        dbProcessor.runQuery(sql);
+        System.out.println();
     }
 }

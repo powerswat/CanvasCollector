@@ -15,6 +15,7 @@ public class ConfigHandler {
     private static String dbAddr;
     private static String dbAcct;
     private static String dbPass;
+    private static String dbName;
 
     public static ConfigHandler getInstance(String configPath) {
         if (instance == null)
@@ -40,6 +41,7 @@ public class ConfigHandler {
             dbAddr = pFile.getProperty("dbAddr");
             dbAcct = pFile.getProperty("dbAcct");
             dbPass = pFile.getProperty("dbPass");
+            dbName = pFile.getProperty("dbName");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -53,9 +55,7 @@ public class ConfigHandler {
         return token;
     }
 
-    public static String getDbAddr() {
-        return dbAddr;
-    }
+    public static String getDbAddr() { return dbAddr; }
 
     public static String getDbAcct() {
         return dbAcct;
@@ -63,5 +63,9 @@ public class ConfigHandler {
 
     public static String getDbPass() {
         return dbPass;
+    }
+
+    public static String getDbName() {
+        return dbName;
     }
 }

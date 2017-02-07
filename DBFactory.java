@@ -1,5 +1,6 @@
 import org.json.simple.JSONArray;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 
 /**
@@ -7,7 +8,6 @@ import java.util.ArrayList;
  */
 public interface DBFactory {
     public void connectToDB(ConfigHandler cnfgHndlr);
-    public String generateQuery(String queryType, JSONArray data, String tableName);
-    public void runQuery();
+    public void runQuery(String sql);
     public void writeTable();
 }
