@@ -9,7 +9,9 @@ public class CourseETLTest {
     @Test
     public void getInstance() throws Exception {
         ConfigHandler cnfgHndlr = ConfigHandler.getInstance("./config/apiconfig.properties");
-        assertNotEquals(null, CourseETL.getInstance(cnfgHndlr));
+        DBProcessor dbProcessor = new DBProcessor();
+        dbProcessor.connectToDB(cnfgHndlr);
+        assertNotEquals(null, CourseETL.getInstance(cnfgHndlr, dbProcessor));
     }
 
     @Test
