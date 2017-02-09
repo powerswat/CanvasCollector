@@ -40,6 +40,19 @@ public class DBProcessor implements DBFactory{
         }
     }
 
+    public boolean checkTableExistence(String tableName){
+        try {
+            rs = st.executeQuery("SHOW TABLES LIKE '" + tableName + "'");
+            if(rs.next())
+                return true;
+            else
+                return false;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     @Override
     public void writeTable() {
 

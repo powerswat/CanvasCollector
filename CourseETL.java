@@ -15,7 +15,7 @@ public class CourseETL implements CanvasETLFact {
 
     private static JSONArray jsonArray;
     private static ArrayList<String> jsonCols;
-    private static String coursePath = "courses";
+    private static String tableName = "COURSES";
     private static String pkCol = "id";
 
     public static CourseETL getInstance(ConfigHandler cnfgHandlr, DBProcessor dbProcessor) {
@@ -35,7 +35,7 @@ public class CourseETL implements CanvasETLFact {
     // Start collecting course information from the given token
     @Override
     public void runProcess(String webApiAddr, String token){
-        String url = webApiAddr + coursePath + "?access_token=" + token;
+        String url = webApiAddr + tableName.toLowerCase() + "?access_token=" + token;
         readAPI(url);
         insertToDB();
     }
@@ -50,9 +50,15 @@ public class CourseETL implements CanvasETLFact {
 
     @Override
     public void insertToDB() {
-        sqlProcessor = new SQLProcessor(jsonArray, coursePath.toUpperCase());
+        sqlProcessor = new SQLProcessor(jsonArray, tableName);
+        String sql = "";
         // Generate a sql query to create a table
-        String sql = sqlProcessor.makeCreateQuery("id");
+        if (!dbProcessor.checkTableExistence(tableName)) {
+            sql = sqlProcessor.makeCreateQuery("id");
+            dbProcessor.runQuery(sql);
+        }
+        // Insert the collected data into the designated table
+        sql = sqlProcessor.makeInsertQuery(jsonArray, tableName);
         dbProcessor.runQuery(sql);
         System.out.println();
     }
