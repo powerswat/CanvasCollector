@@ -3,11 +3,11 @@ import org.json.simple.JSONArray;
 import java.util.ArrayList;
 
 /**
- * Created by youngsukcho on 2017. 1. 26..
+ * Created by powerswat on 2/9/17.
  */
-public class CourseETL implements CanvasETLFact {
+public class UserETL implements CanvasETLFact {
     // Import necessary classes
-    private static CourseETL instance = null;
+    private static UserETL instance = null;
 
     private static ConfigHandler cnfgHndlr;
     private static DBProcessor dbProcessor;
@@ -15,27 +15,29 @@ public class CourseETL implements CanvasETLFact {
 
     private static JSONArray jsonArray;
     private static ArrayList<String> jsonCols;
-    private static String tableName = "COURSES";
+    private static String tableName1st = "COURSES";
+    private static String tableName2nd = "USERS";
     private static String pkCol = "id";
 
-    public static CourseETL getInstance(ConfigHandler cnfgHandlr, DBProcessor dbProcessor) {
+    public static UserETL getInstance(ConfigHandler cnfgHandlr, DBProcessor dbProcessor) {
         if (instance == null)
-            synchronized (CourseETL.class) {
+            synchronized (UserETL.class) {
                 if (instance == null)
-                    instance = new CourseETL(cnfgHandlr, dbProcessor);
+                    instance = new UserETL(cnfgHandlr, dbProcessor);
             }
         return instance;
     }
 
-    private CourseETL(ConfigHandler cnfgHandlr, DBProcessor dbProcessor){
+    private UserETL(ConfigHandler cnfgHandlr, DBProcessor dbProcessor){
         this.cnfgHndlr = cnfgHandlr;
         this.dbProcessor = dbProcessor;
     }
 
-    // Start collecting course information from the given token
     @Override
-    public void runProcess(String webApiAddr, String token){
-        String url = webApiAddr + tableName.toLowerCase() + "?access_token=" + token;
+    public void runProcess(String webApiAddr, String token) {
+        // TODO: Implement a module to iterate over all the courses in the database.
+        String url = webApiAddr + tableName1st.toLowerCase() + "/2/" + tableName2nd.toLowerCase()
+                        + "?access_token=" + token;
         readAPI(url);
         insertToDB();
     }
@@ -50,10 +52,10 @@ public class CourseETL implements CanvasETLFact {
 
     @Override
     public void insertToDB() {
-        sqlProcessor = new SQLProcessor(jsonArray, tableName, pkCol);
+        sqlProcessor = new SQLProcessor(jsonArray, tableName2nd, pkCol);
         String sql = "";
         // Generate a sql query to create a table
-        if (!dbProcessor.checkDuplicate(tableName, "table", "")) {
+        if (!dbProcessor.checkDuplicate(tableName2nd, "table", "")) {
             sql = sqlProcessor.makeCreateQuery();
             dbProcessor.runQuery(sql);
         }

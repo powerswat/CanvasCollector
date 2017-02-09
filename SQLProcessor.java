@@ -8,14 +8,16 @@ import java.util.*;
  * Created by powerswat on 2/7/17.
  */
 public class SQLProcessor implements SQLFactory {
-    private static JSONArray data;
-    private static ArrayList<String> cols = new ArrayList<String>();
-    private static Hashtable<String, String> cols_types = new Hashtable<String, String>();
-    private static String tableName;
+    private JSONArray data;
+    private ArrayList<String> cols = new ArrayList<String>();
+    private Hashtable<String, String> cols_types = new Hashtable<String, String>();
+    private String tableName;
+    private String pkCol;
 
-    public SQLProcessor(JSONArray data, String tableName){
+    public SQLProcessor(JSONArray data, String tableName, String pkCol){
         this.data = data;
         this.tableName = tableName;
+        this.pkCol = pkCol;
 
         // Extract a list of columns from the given json data
         extractJsonCols();
@@ -103,7 +105,7 @@ public class SQLProcessor implements SQLFactory {
     }
 
     @Override
-    public String makeCreateQuery(String pkCol) {
+    public String makeCreateQuery() {
         StringBuffer sb = new StringBuffer();
         sb.append("CREATE TABLE " + tableName + "(");
 
@@ -127,11 +129,11 @@ public class SQLProcessor implements SQLFactory {
     }
 
     @Override
-    public String makeInsertQuery(JSONArray jsonArray, String tableName) {
+    public String makeInsertQuery() {
         StringBuffer sb = new StringBuffer();
         sb.append("INSERT INTO " + tableName + " VALUES ");
-        for (int i = 0; i < jsonArray.size(); i++) {
-            JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+        for (int i = 0; i < data.size(); i++) {
+            JSONObject jsonObject = (JSONObject) data.get(i);
             sb.append("(");
             for (int j = 0; j < cols.size(); j++) {
                 if (cols_types.get(cols.get(j)).equals(""))
@@ -144,7 +146,7 @@ public class SQLProcessor implements SQLFactory {
                 if (j < cols.size()-1)
                     sb.append(", ");
             }
-            if (i == jsonArray.size()-1)
+            if (i == data.size()-1)
                 sb.append(");");
             else
                 sb.append("), ");

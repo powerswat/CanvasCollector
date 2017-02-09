@@ -9,5 +9,5 @@ import java.util.ArrayList;
 public interface DBFactory {
     public void connectToDB(ConfigHandler cnfgHndlr);
     public void runQuery(String sql);
-    public void writeTable();
+    public boolean checkDuplicate(String tableName, String dataType, String key);
 }

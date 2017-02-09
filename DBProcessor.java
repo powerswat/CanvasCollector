@@ -40,10 +40,18 @@ public class DBProcessor implements DBFactory{
         }
     }
 
-    public boolean checkTableExistence(String tableName){
+    @Override
+    public boolean checkDuplicate(String tableName, String dataType, String key) {
         try {
-            rs = st.executeQuery("SHOW TABLES LIKE '" + tableName + "'");
-            if(rs.next())
+            if (dataType.equals("table"))
+                rs = st.executeQuery("SHOW TABLES LIKE '" + tableName + "'");
+            else if (dataType.equals("data"))
+                rs = st.executeQuery("SHOW TABLES LIKE '" + key + "'");
+            else {
+                System.out.println("Data type must be either 'table' or 'data'. Your change has not been updated.");
+                return true;
+            }
+            if (rs.next())
                 return true;
             else
                 return false;
@@ -51,10 +59,5 @@ public class DBProcessor implements DBFactory{
             e.printStackTrace();
         }
         return false;
-    }
-
-    @Override
-    public void writeTable() {
-
     }
 }

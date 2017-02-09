@@ -9,6 +9,6 @@ public interface CanvasETLFact {
     public String dataPath = "data/";
 
     public void runProcess(String webApiAddr, String token);
-    public void readAPI(String addr);
+    public void readAPI(String url);
     public void insertToDB();
 }
