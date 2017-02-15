@@ -1,5 +1,5 @@
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import configure.ConfigHandler;
+import factories.DBFactory;
 
 import java.sql.*;
 import java.util.*;
@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * Created by powerswat on 1/28/17.
  */
-public class DBProcessor implements DBFactory{
+public class DBProcessor implements DBFactory {
     private static Connection con = null;
     private static Statement st = null;
     private static ResultSet rs = null;
@@ -30,7 +30,7 @@ public class DBProcessor implements DBFactory{
     }
 
     @Override
-    public void runQuery(String sql) {
+    public void runUpdateQuery(String sql) {
         try {
             st = con.createStatement();
             int affected_rows = st.executeUpdate(sql);
@@ -41,16 +41,24 @@ public class DBProcessor implements DBFactory{
     }
 
     @Override
-    public boolean checkDuplicate(String tableName, String dataType, String key) {
+    public ArrayList<String> runSelectQuery(String sql, String items) {
+        ArrayList<String> res = new ArrayList<String>();
         try {
-            if (dataType.equals("table"))
-                rs = st.executeQuery("SHOW TABLES LIKE '" + tableName + "'");
-            else if (dataType.equals("data"))
-                rs = st.executeQuery("SHOW TABLES LIKE '" + key + "'");
-            else {
-                System.out.println("Data type must be either 'table' or 'data'. Your change has not been updated.");
-                return true;
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            while (rs.next()){
+                res.add(rs.getString(items));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    @Override
+    public boolean checkDupTable(String tableName) {
+        try {
+            rs = st.executeQuery("SHOW TABLES LIKE '" + tableName + "'");
             if (rs.next())
                 return true;
             else

@@ -1,3 +1,4 @@
+import configure.ConfigHandler;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -34,4 +35,8 @@ public class CourseETLTest {
 
     }
 
+    @Test
+    public void createTable () throws Exception {
+
+    }
 }

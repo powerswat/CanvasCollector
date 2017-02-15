@@ -1,3 +1,5 @@
+package factories;
+
 import org.json.simple.JSONArray;
 
 /**
@@ -8,4 +10,5 @@ public interface SQLFactory {
     public String makeInsertQuery();
     public String makeUpdateQuery();
     public String makeDeleteQuery();
+    public String makeSelectQuery(String items);
 }

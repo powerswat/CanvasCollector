@@ -1,7 +1,7 @@
+import factories.SQLFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.sql.Array;
 import java.util.*;
 
 /**
@@ -19,12 +19,14 @@ public class SQLProcessor implements SQLFactory {
         this.tableName = tableName;
         this.pkCol = pkCol;
 
-        // Extract a list of columns from the given json data
-        extractJsonCols();
-        // Find a list of columns that do not have only null values
-        findNonEmptyColumns();
-        // Check the type for each data element in the json format data
-        checkTypes(cols, data);
+        if (data.size() > 0) {
+            // Extract a list of columns from the given json data
+            extractJsonCols();
+            // Find a list of columns that do not have only null values
+            findNonEmptyColumns();
+            // Check the type for each data element in the json format data
+            checkTypes(cols, data);
+        }
     }
 
     // List a set of columns in the given json data
@@ -163,6 +165,13 @@ public class SQLProcessor implements SQLFactory {
     @Override
     public String makeDeleteQuery() {
         StringBuffer sb = new StringBuffer();
+        return sb.toString();
+    }
+
+    @Override
+    public String makeSelectQuery(String items) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("SELECT " + items + " FROM " + tableName);
         return sb.toString();
     }
 }

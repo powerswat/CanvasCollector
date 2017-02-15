@@ -6,7 +6,9 @@ import org.json.simple.parser.ParseException;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -44,5 +46,29 @@ public class WebTextHandler {
             e.printStackTrace();
         }
         return (JSONArray) obj;
+    }
+
+    // Remove duplicate data elements from the given Json array based on the given unique key set
+    public JSONArray removeDuplicates(JSONArray jsonArray, String tableName, String key,
+                                      DBProcessor dbProcessor){
+        JSONArray uniqueJsonArray = new JSONArray();
+        SQLProcessor sqlProcessor = new SQLProcessor(new JSONArray(), tableName, key);
+        String sql = sqlProcessor.makeSelectQuery(key);
+        ArrayList<String> res = dbProcessor.runSelectQuery(sql, key);
+
+        // Generate a hashset to use it as an index map.
+        HashSet idMap = new HashSet();
+        for (int i = 0; i < res.size(); i++) {
+            if (((JSONObject)jsonArray.get(0)).get(key.toLowerCase()) instanceof Long)
+                idMap.add(Long.parseLong(res.get(i)));
+        }
+
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+            if (!idMap.contains(jsonObject.get(key.toLowerCase())))
+                uniqueJsonArray.add(jsonObject);
+        }
+
+        return uniqueJsonArray;
     }
 }
