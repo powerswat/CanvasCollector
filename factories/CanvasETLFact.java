@@ -7,8 +7,9 @@ import org.json.simple.JSONArray;
  */
 public interface CanvasETLFact {
     public void runProcess(String webApiAddr, String token);
-    public JSONArray readAPI(String url);
+    public String readAPI(String url);
     public void insertToDB(JSONArray jsonArray);
     public void createTable(JSONArray jsonArray);
-    public JSONArray removeDuplicateData(JSONArray jsonArray);
+    public JSONArray removeDuplicateDataInDB(JSONArray jsonArray);
+    public JSONArray parseJson(String filename);
 }

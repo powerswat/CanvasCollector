@@ -49,7 +49,7 @@ public class WebTextHandler {
     }
 
     // Remove duplicate data elements from the given Json array based on the given unique key set
-    public JSONArray removeDuplicates(JSONArray jsonArray, String tableName, String key,
+    public JSONArray removeDuplicatesInDB(JSONArray jsonArray, String tableName, String key,
                                       DBProcessor dbProcessor){
         JSONArray uniqueJsonArray = new JSONArray();
         SQLProcessor sqlProcessor = new SQLProcessor(new JSONArray(), tableName, key);
@@ -70,5 +70,20 @@ public class WebTextHandler {
         }
 
         return uniqueJsonArray;
+    }
+
+    public JSONArray removeDuplicateJson(JSONArray jsonArray) {
+        JSONArray resJsonObjs = new JSONArray();
+        HashSet<Long> idSet = new HashSet<Long>();
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+            if (idSet.contains(jsonObject.get("id")))
+                continue;
+            else{
+                resJsonObjs.add(jsonObject);
+                idSet.add((Long)jsonObject.get("id"));
+            }
+        }
+        return resJsonObjs;
     }
 }

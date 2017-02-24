@@ -9,7 +9,6 @@ import java.util.Properties;
  * Created by powerswat on 1/28/17.
  */
 public class ConfigHandler {
-
     private static ConfigHandler instance = null;
 
     private static String webAddr;

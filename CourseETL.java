@@ -39,17 +39,21 @@ public class CourseETL implements CanvasETLFact {
     @Override
     public void runProcess(String webApiAddr, String token){
         String url = webApiAddr + tableName.toLowerCase() + "?access_token=" + token;
-        JSONArray jsonArray = readAPI(url);
+        String htmlStr = readAPI(url);
+        fileProcessor.writeFile(dataPath + "htmlStr.txt", htmlStr);
+
+        JSONArray jsonArray = parseJson(dataPath + "htmlStr.txt");
         insertToDB(jsonArray);
     }
 
     @Override
-    public JSONArray readAPI(String url) {
-        String htmlStr = webTextHandler.readHTML(url);
-        fileProcessor.writeFile(dataPath + "htmlStr.txt", htmlStr);
-        // Parse a single string value of json into a structured json format
-        JSONArray jsonArray = webTextHandler.parseToJson(dataPath + "htmlStr.txt");
-        return jsonArray;
+    public String readAPI(String url) {
+        return webTextHandler.readHTML(url);
+    }
+
+    @Override
+    public JSONArray parseJson(String filename) {
+        return webTextHandler.parseToJson(dataPath + "htmlStr.txt");
     }
 
     @Override
@@ -60,8 +64,8 @@ public class CourseETL implements CanvasETLFact {
             createTable(jsonArray);
 
         // Insert the collected data into the designated table
-        // TODO: Check duplicates
-        jsonArray = removeDuplicateData(jsonArray);
+        jsonArray = webTextHandler.removeDuplicateJson(jsonArray);
+        jsonArray = removeDuplicateDataInDB(jsonArray);
         if (jsonArray.size() > 0) {
             SQLProcessor sqlProcessor = new SQLProcessor(jsonArray, tableName, pkCol);
             sql = sqlProcessor.makeInsertQuery();
@@ -77,11 +81,11 @@ public class CourseETL implements CanvasETLFact {
     }
 
     @Override
-    public JSONArray removeDuplicateData(JSONArray jsonArray) {
+    public JSONArray removeDuplicateDataInDB(JSONArray jsonArray) {
         SQLProcessor sqlProcessor = new SQLProcessor(jsonArray, tableName, pkCol);
         String sql = sqlProcessor.makeSelectQuery(pkCol);
         ArrayList<String> res = dbProcessor.runSelectQuery(sql, pkCol);
-        jsonArray = webTextHandler.removeDuplicates(jsonArray, tableName, pkCol, dbProcessor);
+        jsonArray = webTextHandler.removeDuplicatesInDB(jsonArray, tableName, pkCol, dbProcessor);
         return jsonArray;
     }
 }

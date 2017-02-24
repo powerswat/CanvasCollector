@@ -60,27 +60,47 @@ public class SQLProcessor implements SQLFactory {
         cols = nonEmptyCols;
     }
 
+    // Check whether the current string data represents time
+    private boolean checkTimeFormat(JSONArray data, String curCol){
+        JSONObject item = (JSONObject) data.get(0);
+        String curData = (String) item.get(curCol);
+        String signature = curData.replaceAll("[^-:TZ0-9]", "");
+
+        if (curData.length() == signature.length())
+            return true;
+        return false;
+    }
+
     // Check the type for each data element in the json format data
     private void checkTypes(ArrayList<String> cols, JSONArray data){
         JSONObject firstData = (JSONObject) data.get(0);
         for (int i = 0; i < cols.size(); i++) {
             String curCol = cols.get(i);
+            // For integer data
             if (firstData.get(curCol) instanceof Integer ||
                     firstData.get(curCol) instanceof Long ||
                     firstData.get(curCol) instanceof Short)
                 cols_types.put(curCol, "INT");
+            // For String or Datetime data
             else if (firstData.get(curCol) instanceof String ||
                     firstData.get(curCol) instanceof Character) {
                 // Count the maximum length of data in each column
                 int dataLen = countMaxDataLen(cols.get(i), data);
-                cols_types.put(curCol, "VARCHAR(" + dataLen + ")");
+
+                if (checkTimeFormat(data, curCol))
+                    cols_types.put(curCol, "DATETIME");
+                else
+                    cols_types.put(curCol, "VARCHAR(" + dataLen + ")");
             }
+            // For boolean data
             else if (firstData.get(curCol) instanceof Boolean)
                 cols_types.put(curCol,"TINYINT(1)");
+            // For HashMap data
             else if (firstData.get(curCol) instanceof HashMap) {
                 System.out.println("HashMap: " + cols.get(i));
                 cols_types.put(curCol,"");
             }
+            // For nested JSONArray data
             else if (firstData.get(curCol) instanceof JSONArray) {
                 System.out.println("JSONArray: " + cols.get(i));
                 cols_types.put(curCol,"");
@@ -97,6 +117,8 @@ public class SQLProcessor implements SQLFactory {
         for (int i = 0; i < data.size(); i++) {
             JSONObject jsonObject = (JSONObject) data.get(i);
             String curStr = (String) jsonObject.get(col);
+            if (curStr == null)
+                continue;
             if (!lenMap.containsKey(col))
                 lenMap.put(col, curStr.length());
             else
@@ -112,7 +134,9 @@ public class SQLProcessor implements SQLFactory {
         sb.append("CREATE TABLE " + tableName + "(");
 
         for (int i = 0; i < cols.size(); i++) {
-            if (cols_types.get(cols.get(i)).equals(""))
+            if (i == 5)
+                System.out.println(i);
+            if (cols_types.get(cols.get(i)) == null || cols_types.get(cols.get(i)).equals(""))
                 continue;
             sb.append(cols.get(i).toUpperCase() + " ");
             if (i == cols.size()-1){
@@ -133,15 +157,43 @@ public class SQLProcessor implements SQLFactory {
     @Override
     public String makeInsertQuery() {
         StringBuffer sb = new StringBuffer();
-        sb.append("INSERT INTO " + tableName + " VALUES ");
+        sb.append("INSERT INTO " + tableName + " (");
+
+        for (int i = 0; i < cols.size(); i++) {
+            if (cols_types.get(cols.get(i)) == null ||
+                    cols_types.get(cols.get(i)).equals("") /*||
+                    missingTypes.contains(cols.get(j))*/)
+                continue;
+            else
+                sb.append(cols.get(i));
+
+            if (i < cols.size()-1)
+                sb.append(", ");
+        }
+        sb.append(") VALUES ");
+
         for (int i = 0; i < data.size(); i++) {
             JSONObject jsonObject = (JSONObject) data.get(i);
             sb.append("(");
+
             for (int j = 0; j < cols.size(); j++) {
-                if (cols_types.get(cols.get(j)).equals(""))
+                if (cols_types.get(cols.get(j)) == null ||
+                        cols_types.get(cols.get(j)).equals("") /*||
+                        missingTypes.contains(cols.get(j))*/)
                     continue;
-                else if (cols_types.get(cols.get(j)).contains("VARCHAR"))
-                    sb.append("'" + jsonObject.get(cols.get(j)) + "'");
+                else if (cols_types.get(cols.get(j)).contains("VARCHAR")) {
+                    String str = (String) jsonObject.get(cols.get(j));
+                    if (str == null)
+                        str = "null";
+                    str = str.replaceAll("'", "");
+                    sb.append("'" + str + "'");
+                }
+                else if (cols_types.get(cols.get(j)).contains("DATETIME")) {
+                    String timeStr = (String) jsonObject.get(cols.get(j));
+                    timeStr = timeStr.replaceAll("[TZ]", " ");
+                    timeStr = timeStr.trim();
+                    sb.append("'" + timeStr + "'");
+                }
                 else
                     sb.append(jsonObject.get(cols.get(j)));
 
@@ -173,5 +225,9 @@ public class SQLProcessor implements SQLFactory {
         StringBuffer sb = new StringBuffer();
         sb.append("SELECT " + items + " FROM " + tableName);
         return sb.toString();
+    }
+
+    public Hashtable<String, String> getCols_types() {
+        return cols_types;
     }
 }

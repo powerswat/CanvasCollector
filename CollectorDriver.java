@@ -12,6 +12,7 @@ public class CollectorDriver {
 
     private static CourseETL cEtl;
     private static UserETL uETL;
+    private static TaskETL tETL;
 
     // Entry point to the system
     public static void main(String[] args){
@@ -23,11 +24,16 @@ public class CollectorDriver {
         // Start collecting course information from the given token
         cEtl = CourseETL.getInstance(cnfgHndlr, dbProcessor);
         cEtl.runProcess(cnfgHndlr.getWebAddr() + apiPath,
-                            cnfgHndlr.getToken());
+                cnfgHndlr.getToken());
 
         // Start collecting user information from the given token
         uETL = uETL.getInstance(cnfgHndlr, dbProcessor);
         uETL.runProcess(cnfgHndlr.getWebAddr() + apiPath,
+                cnfgHndlr.getToken());
+
+        // Start collecting assignment information from the given token
+        tETL = tETL.getInstance(cnfgHndlr, dbProcessor);
+        tETL.runProcess(cnfgHndlr.getWebAddr() + apiPath,
                 cnfgHndlr.getToken());
     }
 }

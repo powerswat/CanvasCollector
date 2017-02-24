@@ -1,38 +1,39 @@
 import configure.ConfigHandler;
 import factories.CanvasETLFact;
 import org.json.simple.JSONArray;
+
 import java.util.ArrayList;
 
-
 /**
- * Created by powerswat on 2/9/17.
+ * Created by powerswat on 2/23/17.
  */
-public class UserETL implements CanvasETLFact {
+public class TaskETL implements CanvasETLFact{
     public static WebTextHandler webTextHandler = new WebTextHandler();
     public static FileProcessor fileProcessor = new FileProcessor();
     public String dataPath = "data/";
 
-    // Import necessary classes
-    private static UserETL instance = null;
+    private static TaskETL instance = null;
 
     private static ConfigHandler cnfgHndlr;
     private static DBProcessor dbProcessor;
 
     private static String tableName1st = "COURSES";
-    private static String tableName2nd = "USERS";
+    private static String tableName2nd = "ASSIGNMENTS";
     private static String pkCol = "ID";
 
-    public static UserETL getInstance(ConfigHandler cnfgHandlr, DBProcessor dbProcessor) {
+
+
+    public static TaskETL getInstance(ConfigHandler cnfgHndlr, DBProcessor dbProcessor){
         if (instance == null)
-            synchronized (UserETL.class) {
+            synchronized (TaskETL.class){
                 if (instance == null)
-                    instance = new UserETL(cnfgHandlr, dbProcessor);
+                    instance = new TaskETL(cnfgHndlr, dbProcessor);
             }
         return instance;
     }
 
-    private UserETL(ConfigHandler cnfgHandlr, DBProcessor dbProcessor){
-        this.cnfgHndlr = cnfgHandlr;
+    public TaskETL(ConfigHandler cnfgHndlr, DBProcessor dbProcessor){
+        this.cnfgHndlr = cnfgHndlr;
         this.dbProcessor = dbProcessor;
     }
 
@@ -61,23 +62,7 @@ public class UserETL implements CanvasETLFact {
 
     @Override
     public JSONArray parseJson(String filename) {
-        return webTextHandler.parseToJson(dataPath + "htmlStr.txt");
-    }
-
-    @Override
-    public void createTable(JSONArray jsonArray){
-        SQLProcessor sqlProcessor = new SQLProcessor(jsonArray, tableName2nd, pkCol);
-        String sql = sqlProcessor.makeCreateQuery();
-        dbProcessor.runUpdateQuery(sql);
-    }
-
-    @Override
-    public JSONArray removeDuplicateDataInDB(JSONArray jsonArray){
-        SQLProcessor sqlProcessor = new SQLProcessor(jsonArray, tableName2nd, pkCol);
-        String sql = sqlProcessor.makeSelectQuery(pkCol);
-        ArrayList<String> res = dbProcessor.runSelectQuery(sql, pkCol);
-        jsonArray = webTextHandler.removeDuplicatesInDB(jsonArray, tableName2nd, pkCol, dbProcessor);
-        return jsonArray;
+        return webTextHandler.parseToJson(filename);
     }
 
     @Override
@@ -97,5 +82,21 @@ public class UserETL implements CanvasETLFact {
             sql = sqlProcessor.makeInsertQuery();
             dbProcessor.runUpdateQuery(sql);
         }
+    }
+
+    @Override
+    public void createTable(JSONArray jsonArray) {
+        SQLProcessor sqlProcessor = new SQLProcessor(jsonArray, tableName2nd, pkCol);
+        String sql = sqlProcessor.makeCreateQuery();
+        dbProcessor.runUpdateQuery(sql);
+    }
+
+    @Override
+    public JSONArray removeDuplicateDataInDB(JSONArray jsonArray) {
+        SQLProcessor sqlProcessor = new SQLProcessor(jsonArray, tableName2nd, pkCol);
+        String sql = sqlProcessor.makeSelectQuery(pkCol);
+        ArrayList<String> res = dbProcessor.runSelectQuery(sql, pkCol);
+        jsonArray = webTextHandler.removeDuplicatesInDB(jsonArray, tableName2nd, pkCol, dbProcessor);
+        return jsonArray;
     }
 }
