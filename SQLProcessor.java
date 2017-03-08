@@ -64,49 +64,51 @@ public class SQLProcessor implements SQLFactory {
     private boolean checkTimeFormat(JSONArray data, String curCol){
         JSONObject item = (JSONObject) data.get(0);
         String curData = (String) item.get(curCol);
-        String signature = curData.replaceAll("[^-:TZ0-9]", "");
-
-        if (curData.length() == signature.length())
-            return true;
+        if (curData != null) {
+            String signature = curData.replaceAll("[^-:TZ0-9]", "");
+            if (curData.length() == signature.length())
+                return true;
+        }
         return false;
     }
 
     // Check the type for each data element in the json format data
     private void checkTypes(ArrayList<String> cols, JSONArray data){
-        JSONObject firstData = (JSONObject) data.get(0);
-        for (int i = 0; i < cols.size(); i++) {
-            String curCol = cols.get(i);
-            // For integer data
-            if (firstData.get(curCol) instanceof Integer ||
-                    firstData.get(curCol) instanceof Long ||
-                    firstData.get(curCol) instanceof Short)
-                cols_types.put(curCol, "INT");
-            // For String or Datetime data
-            else if (firstData.get(curCol) instanceof String ||
-                    firstData.get(curCol) instanceof Character) {
-                // Count the maximum length of data in each column
-                int dataLen = countMaxDataLen(cols.get(i), data);
+        for (int j = 0; j < data.size(); j++) {
+            JSONObject curData = (JSONObject) data.get(j);
+            for (int i = 0; i < cols.size(); i++) {
+                String curCol = cols.get(i);
+                // For integer data
+                if (curData.get(curCol) instanceof Integer ||
+                        curData.get(curCol) instanceof Long ||
+                        curData.get(curCol) instanceof Short)
+                    cols_types.put(curCol, "INT");
+                    // For String or Datetime data
+                else if (curData.get(curCol) instanceof String ||
+                        curData.get(curCol) instanceof Character) {
+                    // Count the maximum length of data in each column
+                    int dataLen = countMaxDataLen(cols.get(i), data);
 
-                if (checkTimeFormat(data, curCol))
-                    cols_types.put(curCol, "DATETIME");
-                else
-                    cols_types.put(curCol, "VARCHAR(" + dataLen + ")");
+                    if (checkTimeFormat(data, curCol))
+                        cols_types.put(curCol, "DATETIME");
+                    else
+                        cols_types.put(curCol, "VARCHAR(" + dataLen + ")");
+                }
+                // For boolean data
+                else if (curData.get(curCol) instanceof Boolean)
+                    cols_types.put(curCol, "TINYINT(1)");
+                    // For HashMap data
+                else if (curData.get(curCol) instanceof HashMap) {
+                    System.out.println("HashMap: " + cols.get(i));
+                    cols_types.put(curCol, "");
+                }
+                // For nested JSONArray data
+                else if (curData.get(curCol) instanceof JSONArray) {
+                    System.out.println("JSONArray: " + cols.get(i));
+                    cols_types.put(curCol, "");
+                } else
+                    System.out.println("Missing types: " + cols.get(i));
             }
-            // For boolean data
-            else if (firstData.get(curCol) instanceof Boolean)
-                cols_types.put(curCol,"TINYINT(1)");
-            // For HashMap data
-            else if (firstData.get(curCol) instanceof HashMap) {
-                System.out.println("HashMap: " + cols.get(i));
-                cols_types.put(curCol,"");
-            }
-            // For nested JSONArray data
-            else if (firstData.get(curCol) instanceof JSONArray) {
-                System.out.println("JSONArray: " + cols.get(i));
-                cols_types.put(curCol,"");
-            }
-            else
-                System.out.println("Missing types: " + cols.get(i));
         }
     }
 
