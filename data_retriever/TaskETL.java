@@ -27,8 +27,6 @@ public class TaskETL implements CanvasETLFact{
     private static String tableName2nd = "ASSIGNMENTS";
     private static String pkCol = "ID";
 
-
-
     public static TaskETL getInstance(ConfigHandler cnfgHndlr, DBProcessor dbProcessor){
         if (instance == null)
             synchronized (TaskETL.class){
@@ -81,6 +79,9 @@ public class TaskETL implements CanvasETLFact{
         // Remove duplicate data elements from the given Json array based on the given unique key set
         jsonArray = webTextHandler.removeDuplicateJson(jsonArray);
         jsonArray = removeDuplicateDataInDB(jsonArray);
+
+        // Organize time order for the tasks (Fill null time and unreasonable time)
+        jsonArray = webTextHandler.organizeTimeFormat(jsonArray);
 
         // Insert the collected data into the designated table
         if (jsonArray.size() > 0) {

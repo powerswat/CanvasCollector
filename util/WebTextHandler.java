@@ -8,7 +8,11 @@ import org.json.simple.parser.ParseException;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 
 /**
@@ -84,5 +88,63 @@ public class WebTextHandler {
             }
         }
         return resJsonObjs;
+    }
+
+    // Fill due time with created time if it is null.
+    public String genAutomatedTime(String timeStr){
+        String newTimeStr = "";
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ");
+
+        try {
+            Date date = df.parse(timeStr);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            calendar.add(Calendar.DATE, 7);
+            newTimeStr = df.format(calendar.getTime());
+        } catch (java.text.ParseException e) {
+            e.printStackTrace();
+        }
+
+        return newTimeStr;
+    }
+
+    // Pull due time back to a week after created time if it is ahead of the created time.
+    public boolean isIncorrectTimeOrder(String createdTime, String dueTime){
+
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ");
+        try {
+            Date createdTimestamp = df.parse(createdTime);
+            Date dueTimestamp = df.parse(dueTime);
+
+            if (createdTimestamp.compareTo(dueTimestamp) > 0)
+                return true;
+        } catch (java.text.ParseException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // Organize time order for the tasks (Fill null time and unreasonable time)
+    public JSONArray organizeTimeFormat(JSONArray jsonArray){
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+            String createdTime = (String) jsonObject.get("created_at");
+            String dueTime = (String) jsonObject.get("due_at");
+
+            if (createdTime == null)
+                continue;
+
+            createdTime = createdTime.replaceAll("[TZ]", " ");
+            if (dueTime == null
+                    || isIncorrectTimeOrder(createdTime, dueTime.replaceAll("[TZ]", " ")))
+                dueTime = genAutomatedTime(createdTime);
+            else
+                dueTime = dueTime.replaceAll("[TZ]", " ");
+
+            jsonObject.put("created_at", createdTime);
+            jsonObject.put("due_at", dueTime);
+            jsonArray.set(i, jsonObject);
+        }
+        return jsonArray;
     }
 }

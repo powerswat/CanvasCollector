@@ -4,6 +4,9 @@ import factories.SQLFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -63,8 +66,7 @@ public class SQLProcessor implements SQLFactory {
     }
 
     // Check whether the current string data represents time
-    private boolean checkTimeFormat(JSONArray data, String curCol){
-        JSONObject item = (JSONObject) data.get(0);
+    private boolean checkTimeFormat(JSONObject item, String curCol){
         String curData = (String) item.get(curCol);
         if (curData != null) {
             String signature = curData.replaceAll("[^-:TZ0-9]", "");
@@ -80,18 +82,27 @@ public class SQLProcessor implements SQLFactory {
             JSONObject curData = (JSONObject) data.get(j);
             for (int i = 0; i < cols.size(); i++) {
                 String curCol = cols.get(i);
+                if (cols_types.get(curCol) != null)
+                    continue;
+
                 // For integer data
                 if (curData.get(curCol) instanceof Integer ||
                         curData.get(curCol) instanceof Long ||
-                        curData.get(curCol) instanceof Short)
+                        curData.get(curCol) instanceof Short) {
                     cols_types.put(curCol, "INT");
-                    // For String or Datetime data
+                }
+                // For floating point data
+                else if (curData.get(curCol) instanceof Float ||
+                        curData.get(curCol) instanceof Double) {
+                    cols_types.put(curCol, "FLOAT");
+                }
+                // For String or Datetime data
                 else if (curData.get(curCol) instanceof String ||
                         curData.get(curCol) instanceof Character) {
                     // Count the maximum length of data in each column
                     int dataLen = countMaxDataLen(cols.get(i), data);
 
-                    if (checkTimeFormat(data, curCol))
+                    if (checkTimeFormat(curData, curCol))
                         cols_types.put(curCol, "DATETIME");
                     else
                         cols_types.put(curCol, "VARCHAR(" + dataLen + ")");
@@ -157,6 +168,8 @@ public class SQLProcessor implements SQLFactory {
 
         return sb.toString();
     }
+
+
 
     @Override
     public String makeInsertQuery() {

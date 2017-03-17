@@ -38,7 +38,7 @@ public class ConfigHandler {
             InputStream input = new FileInputStream(configPath);
             pFile.load(input);
             webAddr = pFile.getProperty("webAddr");
-            token = pFile.getProperty("token");
+            token = pFile.getProperty("teacherToken");
             dbAddr = pFile.getProperty("dbAddr");
             dbAcct = pFile.getProperty("dbAcct");
             dbPass = pFile.getProperty("dbPass");

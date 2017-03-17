@@ -23,6 +23,7 @@ public class CollectorDriver {
         // Read the config file and parse it
         ConfigHandler cnfgHndlr = ConfigHandler.getInstance("./config/apiconfig.properties");
 
+        // Connected to the database
         dbProcessor.connectToDB(cnfgHndlr);
 
         // Start collecting course information from the given token
