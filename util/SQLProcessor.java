@@ -4,14 +4,8 @@ import factories.SQLFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
-/**
- * Created by powerswat on 2/7/17.
- */
 public class SQLProcessor implements SQLFactory {
     private JSONArray data;
     private ArrayList<String> cols = new ArrayList<String>();
@@ -110,7 +104,7 @@ public class SQLProcessor implements SQLFactory {
                 // For boolean data
                 else if (curData.get(curCol) instanceof Boolean)
                     cols_types.put(curCol, "TINYINT(1)");
-                    // For HashMap data
+                // For HashMap data
                 else if (curData.get(curCol) instanceof HashMap) {
                     System.out.println("HashMap: " + cols.get(i));
                     cols_types.put(curCol, "");
@@ -169,17 +163,13 @@ public class SQLProcessor implements SQLFactory {
         return sb.toString();
     }
 
-
-
     @Override
     public String makeInsertQuery() {
         StringBuffer sb = new StringBuffer();
         sb.append("INSERT INTO " + tableName + " (");
 
         for (int i = 0; i < cols.size(); i++) {
-            if (cols_types.get(cols.get(i)) == null ||
-                    cols_types.get(cols.get(i)).equals("") /*||
-                    missingTypes.contains(cols.get(j))*/)
+            if (cols_types.get(cols.get(i)) == null || cols_types.get(cols.get(i)).equals(""))
                 continue;
             else
                 sb.append(cols.get(i));
@@ -187,6 +177,8 @@ public class SQLProcessor implements SQLFactory {
             if (i < cols.size()-1)
                 sb.append(", ");
         }
+        if (sb.charAt(sb.length()-1) == ' ')
+            sb.delete(sb.length()-2, sb.length());
         sb.append(") VALUES ");
 
         for (int i = 0; i < data.size(); i++) {
@@ -194,9 +186,7 @@ public class SQLProcessor implements SQLFactory {
             sb.append("(");
 
             for (int j = 0; j < cols.size(); j++) {
-                if (cols_types.get(cols.get(j)) == null ||
-                        cols_types.get(cols.get(j)).equals("") /*||
-                        missingTypes.contains(cols.get(j))*/)
+                if (cols_types.get(cols.get(j)) == null || cols_types.get(cols.get(j)).equals(""))
                     continue;
                 else if (cols_types.get(cols.get(j)).contains("VARCHAR")) {
                     String str = (String) jsonObject.get(cols.get(j));
@@ -217,6 +207,9 @@ public class SQLProcessor implements SQLFactory {
                 if (j < cols.size()-1)
                     sb.append(", ");
             }
+            if (sb.charAt(sb.length()-1) == ' ')
+                sb.delete(sb.length()-2, sb.length());
+
             if (i == data.size()-1)
                 sb.append(");");
             else

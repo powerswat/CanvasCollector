@@ -1,12 +1,13 @@
 package scheduler;
 
 import configure.ConfigHandler;
+import factories.SchedulerFactory;
 import util.DBProcessor;
 
 /**
  * Created by powerswat on 3/8/17.
  */
-public class IndivScheduler {
+public class IndivScheduler implements SchedulerFactory{
     private static IndivScheduler instance = null;
 
     private static ConfigHandler cnfgHndlr;
@@ -27,7 +28,7 @@ public class IndivScheduler {
         this.dbProcessor = dbProcessor;
     }
 
-    public static void runScheduler(){
+    public void runScheduler(){
 
     }
 }

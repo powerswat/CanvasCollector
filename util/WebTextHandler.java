@@ -10,10 +10,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * Created by powerswat on 1/27/17.
@@ -109,14 +106,14 @@ public class WebTextHandler {
     }
 
     // Pull due time back to a week after created time if it is ahead of the created time.
-    public boolean isIncorrectTimeOrder(String createdTime, String dueTime){
+    private boolean isIncorrectTimeOrder(String createdTime, String restTime){
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ");
         try {
             Date createdTimestamp = df.parse(createdTime);
-            Date dueTimestamp = df.parse(dueTime);
+            Date restTimestamp = df.parse(restTime);
 
-            if (createdTimestamp.compareTo(dueTimestamp) > 0)
+            if (createdTimestamp.compareTo(restTimestamp) > 0)
                 return true;
         } catch (java.text.ParseException e) {
             e.printStackTrace();
@@ -124,26 +121,54 @@ public class WebTextHandler {
         return false;
     }
 
+    private String[] checkDateTimeFormat(JSONArray jsonArray){
+        HashSet<String> res = new HashSet<>();
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+            Set keySet = jsonObject.keySet();
+            // Iterate over all key-pair set and find all the elements that has a time format
+            for (Iterator it = keySet.iterator(); it.hasNext();) {
+                String key = (String) it.next();
+                if (key.equals("created_at"))
+                    continue;
+
+                if (jsonObject.get(key) instanceof String) {
+                    String val = (String) jsonObject.get(key);
+                    if (val.equals(""))
+                        continue;
+                    else if (val.replaceAll("[-:TZ0-9]", "").equals(""))
+                        res.add(key);
+                }
+            }
+        }
+        return res.toArray(new String[res.size()]);
+    }
+
     // Organize time order for the tasks (Fill null time and unreasonable time)
     public JSONArray organizeTimeFormat(JSONArray jsonArray){
+        // Check all the time data in the given json array
+        String[] restTimeCols = checkDateTimeFormat(jsonArray);
+
         for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject jsonObject = (JSONObject) jsonArray.get(i);
             String createdTime = (String) jsonObject.get("created_at");
-            String dueTime = (String) jsonObject.get("due_at");
-
             if (createdTime == null)
                 continue;
 
-            createdTime = createdTime.replaceAll("[TZ]", " ");
-            if (dueTime == null
-                    || isIncorrectTimeOrder(createdTime, dueTime.replaceAll("[TZ]", " ")))
-                dueTime = genAutomatedTime(createdTime);
-            else
-                dueTime = dueTime.replaceAll("[TZ]", " ");
+            for (int j = 0; j < restTimeCols.length; j++) {
+                String restTime = (String) jsonObject.get(restTimeCols[j]);
 
-            jsonObject.put("created_at", createdTime);
-            jsonObject.put("due_at", dueTime);
-            jsonArray.set(i, jsonObject);
+                createdTime = createdTime.replaceAll("[TZ]", " ");
+                if (restTime == null
+                        || isIncorrectTimeOrder(createdTime, restTime.replaceAll("[TZ]", " ")))
+                    restTime = genAutomatedTime(createdTime);
+                else
+                    restTime = restTime.replaceAll("[TZ]", " ");
+
+                jsonObject.put("created_at", createdTime);
+                jsonObject.put(restTimeCols[j], restTime);
+                jsonArray.set(i, jsonObject);
+            }
         }
         return jsonArray;
     }
