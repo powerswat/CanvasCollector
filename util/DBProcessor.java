@@ -56,6 +56,24 @@ public class DBProcessor implements DBFactory {
         }
         return res;
     }
+    
+    @Override
+    public ArrayList<String[]> runSelectQuery(String sql, String[] items) {
+        ArrayList<String[]> res = new ArrayList<>();
+        try {
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            while (rs.next()){
+                String[] template = new String[items.length];
+                for (int i = 0; i < items.length; i++)
+                    template[i] = rs.getString(items[i]);
+                res.add(template);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
 
     @Override
     public boolean checkDupTable(String tableName) {

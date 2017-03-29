@@ -13,6 +13,11 @@ public class SQLProcessor implements SQLFactory {
     private String tableName;
     private String pkCol;
 
+    public SQLProcessor(String tableName, String pkCol){
+        this.tableName = tableName;
+        this.pkCol = pkCol;
+    }
+
     public SQLProcessor(JSONArray data, String tableName, String pkCol){
         this.data = data;
         this.tableName = tableName;
@@ -142,20 +147,34 @@ public class SQLProcessor implements SQLFactory {
         StringBuffer sb = new StringBuffer();
         sb.append("CREATE TABLE " + tableName + "(");
 
-        for (int i = 0; i < cols.size(); i++) {
-            if (i == 5)
-                System.out.println(i);
-            if (cols_types.get(cols.get(i)) == null || cols_types.get(cols.get(i)).equals(""))
+        int i = 0;
+        Set keySet = cols_types.keySet();
+        for (Iterator it = keySet.iterator(); it.hasNext();) {
+            String key = (String) it.next();
+            if (cols_types.get(key) == null || cols_types.get(key).equals(""))
                 continue;
-            sb.append(cols.get(i).toUpperCase() + " ");
+            sb.append(key.toUpperCase() + " ");
             if (i == cols.size()-1){
                 if (!pkCol.equals(""))
-                    sb.append(cols_types.get(cols.get(i)).toUpperCase() + ", ");
+                    sb.append(cols_types.get(key).toUpperCase() + ", ");
                 else
-                    sb.append(cols_types.get(cols.get(i)).toUpperCase() + ");");
+                    sb.append(cols_types.get(key).toUpperCase() + ");");
             } else
-            sb.append(cols_types.get(cols.get(i)).toUpperCase() + ", ");
+            sb.append(cols_types.get(key).toUpperCase() + ", ");
+            i++;
         }
+//        for (int i = 0; i < cols.size(); i++) {
+//            if (cols_types.get(cols.get(i)) == null || cols_types.get(cols.get(i)).equals(""))
+//                continue;
+//            sb.append(cols.get(i).toUpperCase() + " ");
+//            if (i == cols.size()-1){
+//                if (!pkCol.equals(""))
+//                    sb.append(cols_types.get(cols.get(i)).toUpperCase() + ", ");
+//                else
+//                    sb.append(cols_types.get(cols.get(i)).toUpperCase() + ");");
+//            } else
+//            sb.append(cols_types.get(cols.get(i)).toUpperCase() + ", ");
+//        }
 
         if (!pkCol.equals(""))
             sb.append("PRIMARY KEY (" + pkCol.toUpperCase() + "));");
@@ -239,5 +258,9 @@ public class SQLProcessor implements SQLFactory {
 
     public Hashtable<String, String> getCols_types() {
         return cols_types;
+    }
+
+    public void setCols_types(Hashtable<String, String> cols_types) {
+        this.cols_types = cols_types;
     }
 }
