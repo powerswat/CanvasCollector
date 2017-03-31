@@ -87,7 +87,7 @@ public class WebTextHandler {
         return resJsonObjs;
     }
 
-    // Fill due time with created time if it is null.
+    // Fill due time with the one week before the final week, if it is null.
     public String genAutomatedTime(String timeStr){
         String newTimeStr = "";
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ");
@@ -145,7 +145,7 @@ public class WebTextHandler {
     }
 
     // Organize time order for the tasks (Fill null time and unreasonable time)
-    public JSONArray organizeTimeFormat(JSONArray jsonArray){
+    public JSONArray autoFillTimeFormat(JSONArray jsonArray){
         // Check all the time data in the given json array
         String[] restTimeCols = checkDateTimeFormat(jsonArray);
 

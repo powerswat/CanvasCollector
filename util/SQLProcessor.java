@@ -163,18 +163,6 @@ public class SQLProcessor implements SQLFactory {
             sb.append(cols_types.get(key).toUpperCase() + ", ");
             i++;
         }
-//        for (int i = 0; i < cols.size(); i++) {
-//            if (cols_types.get(cols.get(i)) == null || cols_types.get(cols.get(i)).equals(""))
-//                continue;
-//            sb.append(cols.get(i).toUpperCase() + " ");
-//            if (i == cols.size()-1){
-//                if (!pkCol.equals(""))
-//                    sb.append(cols_types.get(cols.get(i)).toUpperCase() + ", ");
-//                else
-//                    sb.append(cols_types.get(cols.get(i)).toUpperCase() + ");");
-//            } else
-//            sb.append(cols_types.get(cols.get(i)).toUpperCase() + ", ");
-//        }
 
         if (!pkCol.equals(""))
             sb.append("PRIMARY KEY (" + pkCol.toUpperCase() + "));");
