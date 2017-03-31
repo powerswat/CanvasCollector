@@ -90,13 +90,13 @@ public class WebTextHandler {
     // Fill due time with the one week before the final week, if it is null.
     public String genAutomatedTime(String timeStr){
         String newTimeStr = "";
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.s");
 
         try {
             Date date = df.parse(timeStr);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
-            calendar.add(Calendar.DATE, 7);
+            calendar.add(Calendar.WEEK_OF_YEAR, 15);
             newTimeStr = df.format(calendar.getTime());
         } catch (java.text.ParseException e) {
             e.printStackTrace();
@@ -144,8 +144,15 @@ public class WebTextHandler {
         return res.toArray(new String[res.size()]);
     }
 
+    // Find the start date of the current course
+    public String getCourseStartDate(DBProcessor dbProcessor, Long courseID){
+        String sql = "SELECT START_AT FROM COURSES WHERE ID = " + Long.toString(courseID) + ";";
+        ArrayList<String>  res = dbProcessor.runSelectQuery(sql, "START_AT");
+        return res.get(0);
+    }
+
     // Organize time order for the tasks (Fill null time and unreasonable time)
-    public JSONArray autoFillTimeFormat(JSONArray jsonArray){
+    public JSONArray autoFillTimeFormat(JSONArray jsonArray, DBProcessor dbProcessor){
         // Check all the time data in the given json array
         String[] restTimeCols = checkDateTimeFormat(jsonArray);
 
@@ -159,10 +166,17 @@ public class WebTextHandler {
                 String restTime = (String) jsonObject.get(restTimeCols[j]);
 
                 createdTime = createdTime.replaceAll("[TZ]", " ");
+
+                // Auto fill time if the time is null or not correct.
                 if (restTime == null
-                        || isIncorrectTimeOrder(createdTime, restTime.replaceAll("[TZ]", " ")))
-                    restTime = genAutomatedTime(createdTime);
-                else
+                        || isIncorrectTimeOrder(createdTime, restTime.replaceAll("[TZ]", " "))) {
+                    // Find the start date of the current course
+                    String courseStartTime = getCourseStartDate(dbProcessor,
+                                                (Long)jsonObject.get("course_id"));
+
+                    // Fill due time with the one week before the final week, if it is null
+                    restTime = genAutomatedTime(courseStartTime);
+                } else
                     restTime = restTime.replaceAll("[TZ]", " ");
 
                 jsonObject.put("created_at", createdTime);

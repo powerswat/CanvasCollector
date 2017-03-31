@@ -60,7 +60,7 @@ public class StudyScheduleDriver {
         students = new Student[numUser];
         LinkedHashSet<Integer> uniqueSet = du.getUniqueSet();
         int i = 0;
-        // TODO: Redefine dues for tasks
+        // TODO: Priority - Due (Asc), Assignment ID (Asc), Point possible (Dsc)
         for (Iterator it = uniqueSet.iterator(); it.hasNext();) {
             students[i++] = new Student((Integer) it.next());
             System.out.println();

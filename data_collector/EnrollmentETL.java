@@ -74,7 +74,7 @@ public class EnrollmentETL implements CanvasETLFact {
 
         // Organize time order for the tasks (Fill null time and unreasonable time)
         // TODO: Make this module universal
-        jsonArray = webTextHandler.autoFillTimeFormat(jsonArray);
+        jsonArray = webTextHandler.autoFillTimeFormat(jsonArray, dbProcessor);
 
         // Insert the collected data into the designated table
         if (jsonArray.size() > 0) {

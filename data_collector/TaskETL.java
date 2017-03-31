@@ -81,7 +81,7 @@ public class TaskETL implements CanvasETLFact{
         jsonArray = removeDuplicateDataInDB(jsonArray);
 
         // Auto fill time order for the tasks (Fill null time and unreasonable time)
-        jsonArray = webTextHandler.autoFillTimeFormat(jsonArray);
+        jsonArray = webTextHandler.autoFillTimeFormat(jsonArray, dbProcessor);
 
         // Insert the collected data into the designated table
         if (jsonArray.size() > 0) {
