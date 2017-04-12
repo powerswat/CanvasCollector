@@ -21,6 +21,7 @@ public class IndivScheduler implements SchedulerFactory{
 
     private static String tableName = "SCHEDULES";
     private static String pkCol = "ID";
+    private static Student[] students;
 
     public static IndivScheduler getInstance(ConfigHandler cnfgHndlr, DBProcessor dbProcessor){
         if (instance == null){
@@ -37,7 +38,10 @@ public class IndivScheduler implements SchedulerFactory{
         this.dbProcessor = dbProcessor;
     }
 
-    public void runScheduler(ArrayList<String[]> sqlData){
+    @Override
+    public void runScheduler(ArrayList<String[]> sqlData, Student[] students){
+        this.students = students;
+
         // Plan based on constraints
         planSchedule(sqlData);
 
@@ -53,7 +57,7 @@ public class IndivScheduler implements SchedulerFactory{
     }
 
     @Override
-    public void insertTable() {
+    public void insertIntoTable() {
 
     }
 }
