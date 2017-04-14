@@ -9,13 +9,13 @@ import java.util.HashSet;
 public class Student {
     private int id;
     private ArrayList<Integer> courseIDs;
-    private ArrayList<Integer> taskIDs;
+    private ArrayList<Assignment> assignments;
     private HashSet<Integer> courseIDSet;
 
     public Student(int id){
         this.id = id;
         courseIDs = new ArrayList<>();
-        taskIDs = new ArrayList<>();
+        assignments = new ArrayList<>();
         courseIDSet = new HashSet<>();
     }
 
@@ -26,7 +26,7 @@ public class Student {
         }
     }
 
-    public void addTaskID(Integer taskID){
-        taskIDs.add(taskID);
+    public void addAssignment(Assignment assignment){
+        assignments.add(assignment);
     }
 }

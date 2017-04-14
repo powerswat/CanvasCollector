@@ -1,8 +1,9 @@
 package util;
 
-import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
+import org.apache.commons.lang3.math.*;
 
 /**
  * Created by powerswat on 3/29/17.
@@ -38,6 +39,71 @@ public class DataUtil <T extends Comparable<T>>{
                 cnt++;
             }
         return uniqueSet.size();
+    }
+
+    // Find missing indices
+    public ArrayList<Integer> findMissingIndices(ArrayList<ArrayList<T>> input) {
+        ArrayList<Integer> res = new ArrayList<>();
+        for (int i = 0; i < input.size(); i++) {
+            ArrayList<T> row = input.get(i);
+            for (T element: row)
+                if (element == null && (res.isEmpty() || res.get(res.size()-1) != i))
+                    res.add(i);
+        }
+        return res;
+    }
+
+    // Find maximum index from the given list
+    public int findMaxIndex(ArrayList<ArrayList<T>> input){
+        int maxIdx = -1;
+        int maxLen = 0;
+        for (int i = 0; i < input.size(); i++) {
+            int curLen = input.get(i).size();
+            if (maxLen < curLen) {
+                maxLen = curLen;
+                maxIdx = i;
+            }
+        }
+        return maxIdx;
+    }
+
+    // Make a sample set to compare
+    public ArrayList<T> takeSample(ArrayList<ArrayList<T>> input){
+        int maxIdx = findMaxIndex(input);
+        return input.get(maxIdx);
+    }
+
+    // Fill null value with some valid default data
+    public ArrayList<ArrayList<T>> fillNull(ArrayList<ArrayList<T>> input,
+                                            ArrayList<Integer> indices){
+        ArrayList<ArrayList<T>> res = new ArrayList<>();
+
+        // Make a sample set to compare
+        ArrayList<T> sample = takeSample(input);
+
+        // Make a hashset of missing indices
+        HashSet<Integer> indexSet = new HashSet<>(indices);
+
+        for (int i = 0; i < input.size(); i++){
+            ArrayList<T> resRow = new ArrayList<>();
+            ArrayList<T> row = input.get(i);
+            if (indexSet.contains(i)) {
+                for (int j = 0; j < row.size(); j++) {
+                    T element = row.get(j);
+                    if (element == null) {
+                        if (sample.get(j) instanceof String
+                                && NumberUtils.isDigits((String) sample.get(j)))
+                            resRow.add((T) "0");
+                        else
+                            resRow.add((T) "");
+                    } else
+                        resRow.add(element);
+                }
+            } else
+                resRow = row;
+            res.add(resRow);
+        }
+        return res;
     }
 
     // Return unique set of elements

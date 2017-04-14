@@ -13,13 +13,14 @@ import java.util.*;
 public class StudyScheduleDriver {
     private static ConfigHandler cnfgHndlr;
     private static DBProcessor dbProcessor = new DBProcessor();
+    private static SQLProcessor sqlProcessor;
     private static IndivScheduler indivScheduler;
     private static TeamScheduler teamScheduler;
 
     private static String tableName = "SCHEDULES";
     private static String pkCol = "ID";
 
-    private static ArrayList<String[]> sqlData;
+    private static ArrayList<ArrayList<String>> sqlData;
     private static Student[] students;
 
     // Read necessary data from the database
@@ -52,12 +53,12 @@ public class StudyScheduleDriver {
     }
 
     // Fill students' information
-    private static void fillStudentInfo(){
+    private static void fillStudentCourseAssignmentInfo(){
         DataUtil<Integer> du = new DataUtil();
 
         Integer[] userIDs = new Integer[sqlData.size()];
         for (int i = 0; i < userIDs.length; i++)
-            userIDs[i] = new Integer(sqlData.get(i)[0]);
+            userIDs[i] = new Integer(sqlData.get(i).get(0));
         int numUser = du.countElem(userIDs);
 
         // Fill students' ID
@@ -71,13 +72,23 @@ public class StudyScheduleDriver {
             mapUserIDtoIdx.put(userID, i++);
         }
 
-        // Fill students' courses and tasks
+        // Replace null in the data format with valid default values
+        DataUtil<String> dataUtil = new DataUtil<>();
+        ArrayList<Integer> missingIdcs = dataUtil.findMissingIndices(sqlData);
+        sqlData = dataUtil.fillNull(sqlData, missingIdcs);
+
+        // Fill students' courses and assignments information
         for (int j = 0; j < sqlData.size(); j++) {
-            int userID = Integer.parseInt(sqlData.get(j)[0]);
+            int userID = Integer.parseInt(sqlData.get(j).get(0));
             int userDataIdx = mapUserIDtoIdx.get(userID);
             Student curStudent = students[userDataIdx];
-            curStudent.addCourseID(Integer.parseInt(sqlData.get(j)[1]));
-            curStudent.addTaskID(Integer.parseInt(sqlData.get(j)[2]));
+            curStudent.addCourseID(Integer.parseInt(sqlData.get(j).get(1)));
+
+            Assignment assignment = new Assignment(Integer.parseInt(sqlData.get(j).get(2)),
+                        sqlData.get(j).get(3), sqlData.get(j).get(4), sqlData.get(j).get(5),
+                        Integer.parseInt(sqlData.get(j).get(6)));
+            curStudent.addAssignment(assignment);
+            students[userDataIdx] = curStudent;
         }
     }
 
@@ -96,15 +107,15 @@ public class StudyScheduleDriver {
         if (!dbProcessor.checkDupTable(tableName))
             createTable();
 
-        // Fill students' information
-        fillStudentInfo();
+        // Fill students' course and assignment information
+        fillStudentCourseAssignmentInfo();
     }
 
     public static void main(String[] args){
         // Prepare data set to schedule
         prepareData();
 
-        // Schedule individual tasks
+        // Schedule individual assignments
         indivScheduler = IndivScheduler.getInstance(cnfgHndlr, dbProcessor);
         indivScheduler.runScheduler(sqlData, students);
 

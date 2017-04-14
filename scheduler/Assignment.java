@@ -13,13 +13,16 @@ public class Assignment {
     private int priority;
     private DateTime createdAt;
     private DateTime dueAt;
+    private int pointsPossible;
+
     private static DateTimeFormatter timeFormatter
             = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.s");
 
-    public Assignment(int id, String name, String createdAt, String dueAt){
+    public Assignment(int id, String name, String createdAt, String dueAt, int pointsPossible){
         this.id = id;
         this.name = name;
         this.createdAt = timeFormatter.parseDateTime(createdAt);
         this.dueAt = timeFormatter.parseDateTime(dueAt);
+        this.pointsPossible = pointsPossible;
     }
 }

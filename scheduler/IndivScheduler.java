@@ -39,7 +39,7 @@ public class IndivScheduler implements SchedulerFactory{
     }
 
     @Override
-    public void runScheduler(ArrayList<String[]> sqlData, Student[] students){
+    public void runScheduler(ArrayList<ArrayList<String>> sqlData, Student[] students){
         this.students = students;
 
         // Plan based on constraints
@@ -50,7 +50,7 @@ public class IndivScheduler implements SchedulerFactory{
 
 
     @Override
-    public void planSchedule(ArrayList<String[]> sqlData) {
+    public void planSchedule(ArrayList<ArrayList<String>> sqlData) {
 
 
         System.out.println();

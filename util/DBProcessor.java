@@ -58,15 +58,15 @@ public class DBProcessor implements DBFactory {
     }
     
     @Override
-    public ArrayList<String[]> runSelectQuery(String sql, String[] items) {
-        ArrayList<String[]> res = new ArrayList<>();
+    public ArrayList<ArrayList<String>> runSelectQuery(String sql, String[] items) {
+        ArrayList<ArrayList<String>> res = new ArrayList<>();
         try {
             st = con.createStatement();
             rs = st.executeQuery(sql);
             while (rs.next()){
-                String[] template = new String[items.length];
+                ArrayList<String> template = new ArrayList<String>();
                 for (int i = 0; i < items.length; i++)
-                    template[i] = rs.getString(items[i]);
+                    template.add(rs.getString(items[i]));
                 res.add(template);
             }
         } catch (SQLException e) {
