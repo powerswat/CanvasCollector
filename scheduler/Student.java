@@ -10,12 +10,16 @@ public class Student {
     private int id;
     private ArrayList<Integer> courseIDs;
     private ArrayList<Assignment> assignments;
+    private ArrayList<Schedule> schedules;
     private HashSet<Integer> courseIDSet;
+    private int[] workDayPreference = {0,1,1,1,1,1,0};
+    private int[] workHourPreference = {-1,-1,-1,-1,-1,-1,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,-1};
 
     public Student(int id){
         this.id = id;
         courseIDs = new ArrayList<>();
         assignments = new ArrayList<>();
+        schedules = new ArrayList<>();
         courseIDSet = new HashSet<>();
     }
 
@@ -28,5 +32,9 @@ public class Student {
 
     public void addAssignment(Assignment assignment){
         assignments.add(assignment);
+    }
+
+    public void addSchedule(Schedule schedule){
+        schedules.add(schedule);
     }
 }

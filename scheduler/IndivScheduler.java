@@ -48,10 +48,12 @@ public class IndivScheduler implements SchedulerFactory{
         System.out.println();
     }
 
+    public void generateScheduleTable(){
+
+    }
 
     @Override
     public void planSchedule(ArrayList<ArrayList<String>> sqlData) {
-
 
         System.out.println();
     }

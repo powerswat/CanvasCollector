@@ -14,6 +14,8 @@ public class Assignment {
     private DateTime createdAt;
     private DateTime dueAt;
     private int pointsPossible;
+    private int numDays;
+    private float hoursPerDay;
 
     private static DateTimeFormatter timeFormatter
             = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.s");
@@ -24,5 +26,7 @@ public class Assignment {
         this.createdAt = timeFormatter.parseDateTime(createdAt);
         this.dueAt = timeFormatter.parseDateTime(dueAt);
         this.pointsPossible = pointsPossible;
+        this.numDays = this.dueAt.getDayOfYear() - this.createdAt.getDayOfYear();
+        this.hoursPerDay = (float) pointsPossible / (float) numDays;
     }
 }
