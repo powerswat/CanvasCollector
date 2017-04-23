@@ -5,6 +5,7 @@ import factories.SchedulerFactory;
 import util.DBProcessor;
 import org.joda.time.DateTime;
 import util.SQLProcessor;
+import util.TimeUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,68 +49,29 @@ public class IndivScheduler implements SchedulerFactory{
         System.out.println();
     }
 
-    @Override
-    public DateTime findEarliestAvailability(Student student, Assignment assignment){
-        DateTime earliestTime = assignment.getCreatedAt().plusDays(1).minuteOfDay().setCopy(0);
-        int[] dayPreference = student.getWorkDayPreference();
-        int[] hourPreference = student.getWorkHourPreference();
-
-        // Iterate until it finds the preferred day
-        for (int i = 1; i < dayPreference.length; i++) {
-            int dayOfWeek = earliestTime.getDayOfWeek();
-            if (dayPreference[dayOfWeek] == 1)
-                break;
-            earliestTime = earliestTime.plusDays(1);
-        }
-
-        // Iterate until it finds the preferred time
-        for (int i = 0; i < hourPreference.length; i++) {
-            earliestTime = earliestTime.plusHours(1);
-            int hourOfDay = earliestTime.getHourOfDay();
-            if (hourPreference[hourOfDay] == 1)
-                return earliestTime;
-        }
-
-        return null;
-    }
-
-    public boolean isOverlapped(ArrayList<Schedule> schedules,
-                                DateTime startTime, DateTime endTime){
-        for (int i = 0; i < schedules.size(); i++) {
-            Schedule curSchedule = schedules.get(i);
-        }
-        return false;
-    }
-
-    @Override
-    public boolean isEligible(Student student, Assignment assignment, DateTime availability){
-        DateTime startTime = availability;
-        DateTime endTime = availability.plusHours((int)Math.ceil(assignment.getHoursPerDay()));
-        Schedule schedule = new Schedule(student.getId(), assignment.getId(), startTime, endTime,
-                assignment.getPointsPossible() / assignment.getNumDays());
-
-        // Check whether there is no overlapped schedule
-        if(!isOverlapped(student.getSchedules(), startTime, endTime))
-            student.addSchedule(schedule);
-
-        return false;
-    }
-
     // Generate a schedule table for each student.
     @Override
     public void generateScheduleTable(){
+        TimeUtil timeUtil = new TimeUtil();
         for (int i = 0; i < students.length; i++) {
             Student curStudent = students[i];
 
             // Get assignment data related to the current student
             ArrayList<Assignment> curAssignments = curStudent.getAssignments();
             for (int j = 0; j < curAssignments.size(); j++) {
-                Assignment curAssignment = curAssignments.get(j);
-                // Find the earliest availability
-                DateTime earliestAvail = findEarliestAvailability(curStudent, curAssignment);
+                // TODO: Generate all schedules for each assignment here.
 
-                if (isEligible(curStudent, curAssignment, earliestAvail))
-                    System.out.println();
+                Assignment curAssignment = curAssignments.get(j);
+
+                // Find the earliest availability
+                DateTime earliestAvail = timeUtil.findEarliestAvailability(curStudent, curAssignment);
+
+                // Generate an available schedule based on the user's preference
+                Schedule schedule = timeUtil.generateSchedule(curStudent, curAssignment, earliestAvail);
+
+                // Check the eligibility of the given schedule
+                if (timeUtil.isEligible(curStudent, schedule))
+                    curStudent.addSchedule(schedule);
             }
             System.out.println();
         }

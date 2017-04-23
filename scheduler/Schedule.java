@@ -20,4 +20,12 @@ public class Schedule {
         this.endTime = endTime;
         this.pointPerDay = pointPerDay;
     }
+
+    public DateTime getStartTime() {
+        return startTime;
+    }
+
+    public DateTime getEndTime() {
+        return endTime;
+    }
 }
