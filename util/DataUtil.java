@@ -19,6 +19,13 @@ public class DataUtil <T extends Comparable<T>>{
                 minVal = arr[i];
         return minVal;
     }
+    public T findMin(ArrayList<T> arr){
+        T minVal = arr.get(0);
+        for (int i = 1; i < arr.size(); i++)
+            if (minVal.compareTo(arr.get(i)) < 0)
+                minVal = arr.get(i);
+        return minVal;
+    }
 
     // Find the maximum number in the given 1D array
     public T findMax(T[] arr){
@@ -26,6 +33,13 @@ public class DataUtil <T extends Comparable<T>>{
         for (int i = 1; i < arr.length; i++)
             if (maxVal.compareTo(arr[i]) > 0)
                 maxVal = arr[i];
+        return maxVal;
+    }
+    public T findMax(ArrayList<T> arr){
+        T maxVal = arr.get(0);
+        for (int i = 1; i < arr.size(); i++)
+            if (maxVal.compareTo(arr.get(i)) > 0)
+                maxVal = arr.get(i);
         return maxVal;
     }
 

@@ -12,7 +12,7 @@ public class Student {
     private ArrayList<Assignment> assignments;
     private ArrayList<Schedule> schedules;
     private HashSet<Integer> courseIDSet;
-    private int[] workDayPreference = {0,1,1,1,1,1,0};
+    private int[] workDayPreference = {-1,1,1,1,1,1,0,0};
     private int[] workHourPreference = {-1,-1,-1,-1,-1,-1,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,-1};
 
     public Student(int id){
@@ -36,5 +36,25 @@ public class Student {
 
     public void addSchedule(Schedule schedule){
         schedules.add(schedule);
+    }
+
+    public ArrayList<Assignment> getAssignments() {
+        return assignments;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int[] getWorkDayPreference() {
+        return workDayPreference;
+    }
+
+    public int[] getWorkHourPreference() {
+        return workHourPreference;
+    }
+
+    public ArrayList<Schedule> getSchedules() {
+        return schedules;
     }
 }

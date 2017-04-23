@@ -26,7 +26,27 @@ public class Assignment {
         this.createdAt = timeFormatter.parseDateTime(createdAt);
         this.dueAt = timeFormatter.parseDateTime(dueAt);
         this.pointsPossible = pointsPossible;
-        this.numDays = this.dueAt.getDayOfYear() - this.createdAt.getDayOfYear();
+        this.numDays = this.dueAt.getDayOfYear() - this.createdAt.getDayOfYear() - 1;
         this.hoursPerDay = (float) pointsPossible / (float) numDays;
+    }
+
+    public float getHoursPerDay() {
+        return hoursPerDay;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public DateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public int getPointsPossible() {
+        return pointsPossible;
+    }
+
+    public int getNumDays() {
+        return numDays;
     }
 }
