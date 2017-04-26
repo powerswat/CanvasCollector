@@ -2,10 +2,11 @@ package scheduler;
 
 import configure.ConfigHandler;
 import factories.SchedulerFactory;
+import org.joda.time.format.DateTimeFormat;
 import util.DBProcessor;
 import org.joda.time.DateTime;
-import util.SQLProcessor;
 import util.TimeUtil;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,21 +23,27 @@ public class IndivScheduler implements SchedulerFactory{
 
     private static String tableName = "SCHEDULES";
     private static String pkCol = "ID";
+    private static String[] colNames;
+    private static String[] types;
+
     private static Student[] students;
 
-    public static IndivScheduler getInstance(ConfigHandler cnfgHndlr, DBProcessor dbProcessor){
+    public static IndivScheduler getInstance(ConfigHandler cnfgHndlr, DBProcessor dbProcessor,
+                                             String[] colNames, String[] types){
         if (instance == null){
             synchronized (IndivScheduler.class){
                 if (instance == null)
-                    instance = new IndivScheduler(cnfgHndlr, dbProcessor);
+                    instance = new IndivScheduler(cnfgHndlr, dbProcessor, colNames, types);
             }
         }
         return instance;
     }
 
-    public IndivScheduler(ConfigHandler cnfgHndlr, DBProcessor dbProcessor){
+    public IndivScheduler(ConfigHandler cnfgHndlr, DBProcessor dbProcessor, String[] colNames, String[] types){
         this.cnfgHndlr = cnfgHndlr;
         this.dbProcessor = dbProcessor;
+        this.colNames = colNames;
+        this.types = types;
     }
 
     @Override
@@ -53,28 +60,68 @@ public class IndivScheduler implements SchedulerFactory{
     @Override
     public void generateScheduleTable(){
         TimeUtil timeUtil = new TimeUtil();
-        for (int i = 0; i < students.length; i++) {
+        // TODO: Revert this back to the original
+//        for (int i = 0; i < students.length; i++) {
+        for (int i = 0; i < 1; i++) {
             Student curStudent = students[i];
 
             // Get assignment data related to the current student
             ArrayList<Assignment> curAssignments = curStudent.getAssignments();
             for (int j = 0; j < curAssignments.size(); j++) {
-                // TODO: Generate all schedules for each assignment here.
 
                 Assignment curAssignment = curAssignments.get(j);
-
-                // Find the earliest availability
-                DateTime earliestAvail = timeUtil.findEarliestAvailability(curStudent, curAssignment);
-
-                // Generate an available schedule based on the user's preference
-                Schedule schedule = timeUtil.generateSchedule(curStudent, curAssignment, earliestAvail);
-
-                // Check the eligibility of the given schedule
-                if (timeUtil.isEligible(curStudent, schedule))
-                    curStudent.addSchedule(schedule);
+                for (int k = 0; k < curAssignment.getNumDays(); k++) {
+                    // Find the earliest availability
+                    Schedule earlistSchedule =
+                            timeUtil.findEarliestAvailability(curStudent, curAssignment, k);
+                    curStudent.addSchedule(earlistSchedule);
+                }
             }
-            System.out.println();
         }
+    }
+
+    @Override
+    public void insertIntoTable() {
+        String sql = "";
+
+        StringBuffer sb = new StringBuffer();
+        sb.append("INSERT INTO " + tableName + " (");
+        for (int i = 0; i < colNames.length; i++) {
+            sb.append(colNames[i]);
+            if (i < colNames.length-1)
+                sb.append(", ");
+        }
+        if (sb.charAt(sb.length()-1) == ' ')
+            sb.delete(sb.length()-2, sb.length());
+        sb.append(") VALUES ");
+
+        for (int i = 0; i < students.length; i++) {
+            ArrayList<Schedule> schedules = students[i].getSchedules();
+            for (int j = 0; j < schedules.size(); j++) {
+                if (schedules.get(j) == null)
+                    continue;
+
+                // Collect data for each column
+                DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+                int id = (i*schedules.size() + j);
+                int userID = schedules.get(j).getStudentID();
+                int courseID = schedules.get(j).getCourseID();
+                int assignmentID = schedules.get(j).getAssignmentID();
+                String stTimeStr = fmt.print(schedules.get(j).getStartTime());
+                String edTimeStr = fmt.print(schedules.get(j).getEndTime());
+                // Default value
+                int priority = -1;
+
+                sb.append("(" + Integer.toString(id) + ", " + Integer.toString(userID) + ", " +
+                            Integer.toString(courseID) + ", " + Integer.toString(assignmentID) +
+                            ", '" + stTimeStr + "', '" + edTimeStr + "', " + priority + ")");
+                if (j < schedules.size()-1)
+                    sb.append(", ");
+                else
+                    sb.append(";");
+            }
+        }
+        dbProcessor.runUpdateQuery(sb.toString());
     }
 
     @Override
@@ -82,11 +129,8 @@ public class IndivScheduler implements SchedulerFactory{
         // Generate a schedule table for each student.
         generateScheduleTable();
 
+        insertIntoTable();
+
         System.out.println();
-    }
-
-    @Override
-    public void insertIntoTable() {
-
     }
 }

@@ -19,6 +19,9 @@ public class StudyScheduleDriver {
 
     private static String tableName = "SCHEDULES";
     private static String pkCol = "ID";
+    private static String[] colNames = {"ID", "USER_ID", "COURSE_ID", "ASSIGNMENT_ID", "START_TIME",
+                                        "END_TIME", "PRIORITY"};
+    private static String[] types = {"INT", "INT", "INT", "INT", "DATETIME", "DATETIME", "INT"};
 
     private static ArrayList<ArrayList<String>> sqlData;
     private static Student[] students;
@@ -38,10 +41,6 @@ public class StudyScheduleDriver {
 
     // Create a table to store the schedules
     private static void createTable(){
-        String[] colNames
-                    = {"ID", "USER_ID", "COURSE_ID", "ASSIGNMENT_ID", "START_TIME",
-                        "END_TIME", "PRIORITY"};
-        String[] types = {"INT", "INT", "INT", "INT", "DATETIME", "DATETIME", "INT"};
         Hashtable<String, String> cols_types = new Hashtable<>();
         for (int i = 0; i < colNames.length; i++)
             cols_types.put(colNames[i], types[i]);
@@ -85,6 +84,7 @@ public class StudyScheduleDriver {
             curStudent.addCourseID(Integer.parseInt(sqlData.get(j).get(1)));
 
             Assignment assignment = new Assignment(Integer.parseInt(sqlData.get(j).get(2)),
+                        Integer.parseInt(sqlData.get(j).get(1)),
                         sqlData.get(j).get(3), sqlData.get(j).get(4), sqlData.get(j).get(5),
                         Integer.parseInt(sqlData.get(j).get(6)));
             curStudent.addAssignment(assignment);
@@ -116,7 +116,7 @@ public class StudyScheduleDriver {
         prepareData();
 
         // Schedule individual assignments
-        indivScheduler = IndivScheduler.getInstance(cnfgHndlr, dbProcessor);
+        indivScheduler = IndivScheduler.getInstance(cnfgHndlr, dbProcessor, colNames, types);
         indivScheduler.runScheduler(sqlData, students);
 
         System.out.println();

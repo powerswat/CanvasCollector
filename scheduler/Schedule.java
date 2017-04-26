@@ -8,14 +8,16 @@ import org.joda.time.DateTime;
 public class Schedule {
     private int studentID;
     private int assignmentID;
+    private int courseID;
     private DateTime startTime;
     private DateTime endTime;
     private float pointPerDay;
 
-    public Schedule(int studentID, int assignmentID,
+    public Schedule(int studentID, int assignmentID, int courseID,
                     DateTime startTime, DateTime endTime, float pointPerDay){
         this.studentID = studentID;
         this.assignmentID = assignmentID;
+        this.courseID = courseID;
         this.startTime = startTime;
         this.endTime = endTime;
         this.pointPerDay = pointPerDay;
@@ -27,5 +29,17 @@ public class Schedule {
 
     public DateTime getEndTime() {
         return endTime;
+    }
+
+    public int getStudentID() {
+        return studentID;
+    }
+
+    public int getAssignmentID() {
+        return assignmentID;
+    }
+
+    public int getCourseID() {
+        return courseID;
     }
 }

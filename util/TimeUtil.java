@@ -11,8 +11,9 @@ import java.util.ArrayList;
  * Created by powerswat on 4/23/17.
  */
 public class TimeUtil {
-    public DateTime findEarliestAvailability(Student student, Assignment assignment){
-        DateTime earliestTime = assignment.getCreatedAt().plusDays(1).minuteOfDay().setCopy(0);
+    public Schedule findEarliestAvailability(Student student, Assignment assignment, int kDays){
+        DateTime earliestTime
+                = assignment.getCreatedAt().plusDays(1+kDays).minuteOfDay().setCopy(0);
         int[] dayPreference = student.getWorkDayPreference();
         int[] hourPreference = student.getWorkHourPreference();
 
@@ -29,17 +30,28 @@ public class TimeUtil {
             earliestTime = earliestTime.plusHours(1);
             int hourOfDay = earliestTime.getHourOfDay();
             if (hourPreference[hourOfDay] == 1)
-                return earliestTime;
+                break;
         }
 
-        return null;
+        // Generate an available schedule based on the user's preference
+        Schedule schedule = generateSchedule(student, assignment, earliestTime);
+        while (!isEligible(student, schedule)
+                && schedule.getEndTime().isBefore(assignment.getDueAt())) {
+            earliestTime = earliestTime.plusHours(1);
+            schedule = generateSchedule(student, assignment, earliestTime);
+        }
+        if (!schedule.getEndTime().isBefore(assignment.getDueAt()))
+            return null;
+        return schedule;
+
     }
 
     // Generate an available schedule based on the user's preference
     public Schedule generateSchedule(Student student, Assignment assignment, DateTime availability){
         DateTime startTime = availability;
         DateTime endTime = availability.plusHours((int)Math.ceil(assignment.getHoursPerDay()));
-        return new Schedule(student.getId(), assignment.getId(), startTime, endTime,
+        return new Schedule(student.getId(), assignment.getId(), assignment.getCourseID(),
+                startTime, endTime,
                 assignment.getPointsPossible() / assignment.getNumDays());
     }
 
@@ -52,10 +64,13 @@ public class TimeUtil {
         return false;
     }
 
+    // Check whether there is no overlapped schedule
     public boolean isOverlapped(ArrayList<Schedule> schedules,
                                 DateTime startTime, DateTime endTime){
         for (int i = 0; i < schedules.size(); i++) {
             Schedule curSchedule = schedules.get(i);
+            if (curSchedule == null)
+                continue;
             if (!(startTime.isAfter(curSchedule.getEndTime()) ||
                     endTime.isBefore(curSchedule.getStartTime())))
                 return true;

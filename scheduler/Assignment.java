@@ -9,7 +9,7 @@ import org.joda.time.format.DateTimeFormatter;
  */
 public class Assignment {
     private int id;
-    private String name;
+    private int courseID;
     private int priority;
     private DateTime createdAt;
     private DateTime dueAt;
@@ -20,14 +20,18 @@ public class Assignment {
     private static DateTimeFormatter timeFormatter
             = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.s");
 
-    public Assignment(int id, String name, String createdAt, String dueAt, int pointsPossible){
+    public Assignment(int id, int courseID, String name, String createdAt, String dueAt, int pointsPossible){
         this.id = id;
-        this.name = name;
+        this.courseID = courseID;
+        String name1 = name;
         this.createdAt = timeFormatter.parseDateTime(createdAt);
         this.dueAt = timeFormatter.parseDateTime(dueAt);
         this.pointsPossible = pointsPossible;
         this.numDays = this.dueAt.getDayOfYear() - this.createdAt.getDayOfYear() - 1;
-        this.hoursPerDay = (float) pointsPossible / (float) numDays;
+//        this.hoursPerDay = (float) pointsPossible / (float) numDays;
+
+        // Use the following default setting tentatively
+        this.hoursPerDay = 1;
     }
 
     public float getHoursPerDay() {
@@ -48,5 +52,13 @@ public class Assignment {
 
     public int getNumDays() {
         return numDays;
+    }
+
+    public DateTime getDueAt() {
+        return dueAt;
+    }
+
+    public int getCourseID() {
+        return courseID;
     }
 }

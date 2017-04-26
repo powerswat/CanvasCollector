@@ -12,9 +12,7 @@ public class CollectorDriver {
 
     private static String webAddr;
     private static String token;
-    private static String apiPath = "api/v1/";
 
-    private static CourseETL cEtl;
     private static UserETL uETL;
     private static TaskETL tETL;
     private static EnrollmentETL eETL;
@@ -28,7 +26,8 @@ public class CollectorDriver {
         dbProcessor.connectToDB(cnfgHndlr);
 
         // Start collecting course information from the given token
-        cEtl = CourseETL.getInstance(cnfgHndlr, dbProcessor);
+        CourseETL cEtl = CourseETL.getInstance(cnfgHndlr, dbProcessor);
+        String apiPath = "api/v1/";
         cEtl.runProcess(cnfgHndlr.getWebAddr() + apiPath, cnfgHndlr.getToken());
 
         // Start collecting user information from the given token
