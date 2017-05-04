@@ -1,0 +1,30 @@
+DONE
+- column 이름 가져오기 
+  . ScheduleDriver (Done)
+  . Generate a column query (Done)
+  . CourseID 가져오기
+    . schdule 만드는 부분에서부터 시작 (X),
+    . Schedule class 내부에 직접 변수 생성 필요. --> Schedule 클래스 내에 존재. (Done)
+
+      . Schedule instance를 만드는 곳 확인.--> Assignment에서 가져옴. (Done)
+        . 실제 잘 들어왔는지 확인. (X) --> Fix --> Assignment에는 잘 들어감. (Done)
+        . Schedule 에는 잘 들어가는지 확인. (위치: TimeUtil) (Done)
+
+        . Assignment에서 courseID 가져와야 함. --> Assignment는 어디서 instantiate 하는지 필요 (Done)
+          . Assignment에 courseID 변수 추가하고, 값을 제공. --> sqlData (Done)
+
+  . Data 가져오기 (Type에 따라 다른 모듈) --> (DONE)
+    "ID", "USER_ID", "COURSE_ID", "ASSIGNMENT_ID", "START_TIME", "END_TIME", "PRIORITY"
+    "INT", "INT",      "INT",        "INT", 	"DATETIME",  "DATETIME", "INT"
+    auto, studentID,  courseID,     assignmetnID,   startTime,      endTime, 0
+
+- DateTime의 시간 정보를 String으로 변환하여 DB Schedule table에 삽입. --> (DONE)
+  . 2012-05-01 16:07:00 --> (DONE)
+
+
+TODO
+
+
+ERROR / WARNINGS
+- schedules에 null이 포함되어 있음. (schedule이 만들어지는 과정 파악)
+  . if (OO == null) 부분부터 거슬러 올라갈 필요
