@@ -57,4 +57,12 @@ public class Student {
     public ArrayList<Schedule> getSchedules() {
         return schedules;
     }
+
+    public ArrayList<Integer> getCourseIDs() {
+        return courseIDs;
+    }
+
+    public void setCourseIDs(ArrayList<Integer> courseIDs) {
+        this.courseIDs = courseIDs;
+    }
 }

@@ -93,7 +93,7 @@ public class StudyScheduleDriver {
     }
 
     // Prepare data set to schedule
-    private static void prepareData(){
+    public static void prepareData(){
         // Read the config file and parse it
         cnfgHndlr = ConfigHandler.getInstance("./config/apiconfig.properties");
 
@@ -109,6 +109,30 @@ public class StudyScheduleDriver {
 
         // Fill students' course and assignment information
         fillStudentCourseAssignmentInfo();
+    }
+
+    public static ConfigHandler getCnfgHndlr() {
+        return cnfgHndlr;
+    }
+
+    public static DBProcessor getDbProcessor() {
+        return dbProcessor;
+    }
+
+    public static String[] getColNames() {
+        return colNames;
+    }
+
+    public static String[] getTypes() {
+        return types;
+    }
+
+    public static ArrayList<ArrayList<String>> getSqlData() {
+        return sqlData;
+    }
+
+    public static Student[] getStudents() {
+        return students;
     }
 
     public static void main(String[] args){

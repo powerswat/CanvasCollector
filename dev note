@@ -22,9 +22,15 @@ DONE
   . 2012-05-01 16:07:00 --> (DONE)
 
 
+
 TODO
 
-
 ERROR / WARNINGS
-- schedules에 null이 포함되어 있음. (schedule이 만들어지는 과정 파악)
+- schedules에 null이 포함되어 있음. (schedule이 만들어지는 과정 파악) --> DB에는 일단 빠진 채로 들어감
   . if (OO == null) 부분부터 거슬러 올라갈 필요
+
+Unit test for IndivScheduler 작성
+
+DB / Java implementation in EHE server
+- DB setup
+- Java source code copy
