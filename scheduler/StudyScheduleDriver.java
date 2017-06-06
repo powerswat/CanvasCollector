@@ -19,9 +19,10 @@ public class StudyScheduleDriver {
 
     private static String tableName = "SCHEDULES";
     private static String pkCol = "ID";
-    private static String[] colNames = {"ID", "USER_ID", "COURSE_ID", "ASSIGNMENT_ID", "START_TIME",
-                                        "END_TIME", "PRIORITY"};
-    private static String[] types = {"INT", "INT", "INT", "INT", "DATETIME", "DATETIME", "INT"};
+    private static String[] colNames = {"ID", "USER_ID", "COURSE_ID", "ASSIGNMENT_ID",
+                                        "ASSIGNMENT_NAME", "START_TIME", "END_TIME", "PRIORITY"};
+    private static String[] types = {"INT", "INT", "INT", "INT",
+                                     "VARCHAR", "DATETIME", "DATETIME", "INT"};
 
     private static ArrayList<ArrayList<String>> sqlData;
     private static Student[] students;
@@ -134,6 +135,8 @@ public class StudyScheduleDriver {
     public static Student[] getStudents() {
         return students;
     }
+
+
 
     public static void main(String[] args){
         // Prepare data set to schedule

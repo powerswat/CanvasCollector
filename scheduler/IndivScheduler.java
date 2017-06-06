@@ -4,13 +4,10 @@ import configure.ConfigHandler;
 import factories.SchedulerFactory;
 import org.joda.time.format.DateTimeFormat;
 import util.DBProcessor;
-import org.joda.time.DateTime;
 import util.TimeUtil;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
 
 /**
  * Created by powerswat on 3/8/17.
@@ -18,7 +15,6 @@ import java.util.Hashtable;
 public class IndivScheduler implements SchedulerFactory{
     private static IndivScheduler instance = null;
 
-    private static ConfigHandler cnfgHndlr;
     private static DBProcessor dbProcessor;
 
     private static String tableName = "SCHEDULES";
@@ -40,7 +36,6 @@ public class IndivScheduler implements SchedulerFactory{
     }
 
     public IndivScheduler(ConfigHandler cnfgHndlr, DBProcessor dbProcessor, String[] colNames, String[] types){
-        this.cnfgHndlr = cnfgHndlr;
         this.dbProcessor = dbProcessor;
         this.colNames = colNames;
         this.types = types;
@@ -48,10 +43,13 @@ public class IndivScheduler implements SchedulerFactory{
 
     @Override
     public void runScheduler(ArrayList<ArrayList<String>> sqlData, Student[] students){
-        this.students = students;
+        // Assign students' data into a member function
+        setStudents(students);
 
-        // Plan based on constraints
-        planSchedule(sqlData);
+        // Generate a schedule table for each student.
+        generateScheduleTable();
+
+        insertIntoTable();
 
         System.out.println();
     }
@@ -77,6 +75,7 @@ public class IndivScheduler implements SchedulerFactory{
                     curStudent.addSchedule(earlistSchedule);
                 }
             }
+            students[i] = curStudent;
         }
     }
 
@@ -124,13 +123,11 @@ public class IndivScheduler implements SchedulerFactory{
         dbProcessor.runUpdateQuery(sb.toString());
     }
 
-    @Override
-    public void planSchedule(ArrayList<ArrayList<String>> sqlData) {
-        // Generate a schedule table for each student.
-        generateScheduleTable();
+    public static void setStudents(Student[] students) {
+        IndivScheduler.students = students;
+    }
 
-        insertIntoTable();
-
-        System.out.println();
+    public static Student[] getStudents() {
+        return students;
     }
 }

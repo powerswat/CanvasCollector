@@ -71,8 +71,8 @@ public class TimeUtil {
             Schedule curSchedule = schedules.get(i);
             if (curSchedule == null)
                 continue;
-            if (!(startTime.isAfter(curSchedule.getEndTime()) ||
-                    endTime.isBefore(curSchedule.getStartTime())))
+            if (!(startTime.isAfter(curSchedule.getEndTime().minusMinutes(1)) ||
+                    endTime.isBefore(curSchedule.getStartTime().plusMinutes(1))))
                 return true;
         }
         return false;

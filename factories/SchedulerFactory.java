@@ -11,7 +11,6 @@ import java.util.ArrayList;
  */
 public interface SchedulerFactory {
     void runScheduler(ArrayList<ArrayList<String>> sqlData, Student[] students);
-    void planSchedule(ArrayList<ArrayList<String>> sqlData);
     void generateScheduleTable();
     void insertIntoTable();
 }

@@ -21,7 +21,10 @@ DONE
 - DateTime의 시간 정보를 String으로 변환하여 DB Schedule table에 삽입. --> (DONE)
   . 2012-05-01 16:07:00 --> (DONE)
 
-
+- students data를 채워줘야 함. --> (DONE)
+- Overlap이 생기는 경우 1시간의 공백이 발생 --> isOverlap 에서 동일한 시간에 끝나고 동일한 시작에
+  시작하는 경우 isAfter(), isBefore()가 겹치는 것으로 인정 --> isAfter()는 이미 등록되어 있는
+  스케줄에 대해 1분전, isBefore()는 이미 먼저 등록되어 있는 스케줄의 1분 후를 기준으로 비교. --> (DONE)
 
 TODO
 
@@ -30,7 +33,18 @@ ERROR / WARNINGS
   . if (OO == null) 부분부터 거슬러 올라갈 필요
 
 Unit test for IndivScheduler 작성
+- 정해진 course의 assignment만 포함되어 있는지 확인. --> Yes
+- generateScheduleTable() 실행 -->
 
 DB / Java implementation in EHE server
 - DB setup
 - Java source code copy
+
+IndivScheduler 데이터 확인
+- 어떤 데이터가 들어있는지 확인 --> No public method / variables
+
+SCHEDULER table
+- 만들려고 하는 모든 column의 type 정보 뽑아내서 create table query를 만들 때 반영
+  --> SQLProcessor() 부분에 type과 데이터 최대 길이를 구해주는 checkTypes() 함수 존재
+  --> Overloading을 통해서 실행하는 부분을 다르게 설정하는데 JSONArray 데이터가 안들어오는 경우
+      checkType()을 실행하지 않음.
