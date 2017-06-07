@@ -3,6 +3,7 @@ package scheduler;
 import configure.ConfigHandler;
 import util.DBProcessor;
 import util.DataUtil;
+import util.SQLDataUtil;
 import util.SQLProcessor;
 
 import java.util.*;
@@ -37,7 +38,18 @@ public class StudyScheduleDriver {
                 "ORDER BY USER_ID, DUE_AT, POINTS_POSSIBLE, A.CREATED_AT, E.COURSE_ID;";
         String[] items = {"USER_ID", "E.COURSE_ID", "A.ID", "A.NAME", "A.CREATED_AT",
                             "DUE_AT", "POINTS_POSSIBLE"};
+
+        SQLDataUtil sqlDataUtil = new SQLDataUtil();
+        DataUtil dataUtil = new DataUtil();
+
         sqlData = dbProcessor.runSelectQuery(sql, items);
+        if (sqlData.size() > 0) {
+            // Find a list of columns that do not have only null values
+            ArrayList<String> cols = dataUtil.extractNonEmptyColumns(sqlData, Arrays.asList(colNames));
+            // Check the type for each data element in the json format data
+//            Hashtable<String, String> cols_types = sqlDataUtil.checkTypes(cols, sqlData);
+        }
+        System.out.println();
     }
 
     // Create a table to store the schedules

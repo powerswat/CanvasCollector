@@ -15,23 +15,28 @@ public class SQLProcessor implements SQLFactory {
     private String tableName;
     private String pkCol;
 
+    // Constructor used when the data is not provided
     public SQLProcessor(String tableName, String pkCol){
         this.tableName = tableName;
         this.pkCol = pkCol;
     }
 
+    // Constructor used when the Json data is provided
     public SQLProcessor(JSONArray data, String tableName, String pkCol){
         this.data = data;
         this.tableName = tableName;
         this.pkCol = pkCol;
 
+        SQLDataUtil sqlDataUtil = new SQLDataUtil();
+        DataUtil dataUtil = new DataUtil();
+
         if (data.size() > 0) {
             // Extract a list of columns from the given json data
             extractJsonCols();
             // Find a list of columns that do not have only null values
-            findNonEmptyColumns();
+            cols = dataUtil.extractNonEmptyColumns(data, cols);
             // Check the type for each data element in the json format data
-            checkTypes(cols, data);
+            cols_types = sqlDataUtil.checkTypes(cols, data);
         }
     }
 
@@ -40,108 +45,6 @@ public class SQLProcessor implements SQLFactory {
         Set keySet = ((JSONObject) data.get(0)).keySet();
         for (Iterator it = keySet.iterator(); it.hasNext();)
             cols.add((String) it.next());
-    }
-
-    // Find a list of columns that do not have only null values
-    private void findNonEmptyColumns(){
-        ArrayList<String> nonEmptyCols = new ArrayList<String>();
-        Hashtable<String, Integer> emptyMap = new Hashtable<String, Integer>();
-
-        // Collect a list of columns that have at least one null value
-        for (int i = 0; i < data.size(); i++) {
-            JSONObject jsonObject = (JSONObject) data.get(i);
-            for (int j = 0; j < cols.size(); j++)
-                if (jsonObject.get(cols.get(j)) == null)
-                    if (emptyMap.containsKey(cols.get(j)))
-                        emptyMap.put(cols.get(j), emptyMap.get(cols.get(j)) + 1);
-                    else
-                        emptyMap.put(cols.get(j), 1);
-        }
-
-        // List a set of columns that contain at least one meaningful value in it
-        for (int i = 0; i < cols.size(); i++)
-            if (!emptyMap.containsKey(cols.get(i)) || (emptyMap.get(cols.get(i)) < data.size()))
-                nonEmptyCols.add(cols.get(i));
-
-        cols = nonEmptyCols;
-    }
-
-    // Check whether the current string data represents time
-    private boolean checkTimeFormat(JSONObject item, String curCol){
-        String curData = (String) item.get(curCol);
-        if (curData != null) {
-            String signature = curData.replaceAll("[^-:TZ0-9]", "");
-            if (curData.length() == signature.length())
-                return true;
-        }
-        return false;
-    }
-
-    // Check the type for each data element in the json format data
-    private void checkTypes(ArrayList<String> cols, JSONArray data){
-        for (int j = 0; j < data.size(); j++) {
-            JSONObject curData = (JSONObject) data.get(j);
-            for (int i = 0; i < cols.size(); i++) {
-                String curCol = cols.get(i);
-                if (cols_types.get(curCol) != null)
-                    continue;
-
-                // For integer data
-                if (curData.get(curCol) instanceof Integer ||
-                        curData.get(curCol) instanceof Long ||
-                        curData.get(curCol) instanceof Short) {
-                    cols_types.put(curCol, "INT");
-                }
-                // For floating point data
-                else if (curData.get(curCol) instanceof Float ||
-                        curData.get(curCol) instanceof Double) {
-                    cols_types.put(curCol, "FLOAT");
-                }
-                // For String or Datetime data
-                else if (curData.get(curCol) instanceof String ||
-                        curData.get(curCol) instanceof Character) {
-                    // Count the maximum length of data in each column
-                    int dataLen = countMaxDataLen(cols.get(i), data);
-
-                    if (checkTimeFormat(curData, curCol))
-                        cols_types.put(curCol, "DATETIME");
-                    else
-                        cols_types.put(curCol, "VARCHAR(" + dataLen + ")");
-                }
-                // For boolean data
-                else if (curData.get(curCol) instanceof Boolean)
-                    cols_types.put(curCol, "TINYINT(1)");
-                // For HashMap data
-                else if (curData.get(curCol) instanceof HashMap) {
-                    System.out.println("HashMap: " + cols.get(i));
-                    cols_types.put(curCol, "");
-                }
-                // For nested JSONArray data
-                else if (curData.get(curCol) instanceof JSONArray) {
-                    System.out.println("JSONArray: " + cols.get(i));
-                    cols_types.put(curCol, "");
-                } else
-                    System.out.println("Missing types: " + cols.get(i));
-            }
-        }
-    }
-
-    // Count the maximum length of data in each column
-    private int countMaxDataLen(String col, JSONArray data){
-        Hashtable<String, Integer> lenMap = new Hashtable<String, Integer>();
-
-        for (int i = 0; i < data.size(); i++) {
-            JSONObject jsonObject = (JSONObject) data.get(i);
-            String curStr = (String) jsonObject.get(col);
-            if (curStr == null)
-                continue;
-            if (!lenMap.containsKey(col))
-                lenMap.put(col, curStr.length());
-            else
-                lenMap.put(col, Math.max(lenMap.get(col), curStr.length()));
-        }
-
-        return lenMap.get(col);
     }
 
     @Override

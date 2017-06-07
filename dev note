@@ -30,7 +30,8 @@ TODO
 
 ERROR / WARNINGS
 - schedules에 null이 포함되어 있음. (schedule이 만들어지는 과정 파악) --> DB에는 일단 빠진 채로 들어감
-  . if (OO == null) 부분부터 거슬러 올라갈 필요
+  --> if (OO == null) 부분부터 거슬러 올라갈 필요
+  -->
 
 Unit test for IndivScheduler 작성
 - 정해진 course의 assignment만 포함되어 있는지 확인. --> Yes
@@ -41,10 +42,24 @@ DB / Java implementation in EHE server
 - Java source code copy
 
 IndivScheduler 데이터 확인
-- 어떤 데이터가 들어있는지 확인 --> No public method / variables
+- 어떤 데이터가 들어있는지 확인 --> No public method / variables -->
 
 SCHEDULER table
 - 만들려고 하는 모든 column의 type 정보 뽑아내서 create table query를 만들 때 반영
   --> SQLProcessor() 부분에 type과 데이터 최대 길이를 구해주는 checkTypes() 함수 존재
   --> Overloading을 통해서 실행하는 부분을 다르게 설정하는데 JSONArray 데이터가 안들어오는 경우
       checkType()을 실행하지 않음.
+  --> SQLDataUtil 클래스를 만들어서 해결
+  -->
+
+- JSON data가 아닌 경우에도 SQLProcessor에서 checkType()을 활용할 수 있도록 수정.
+  -->
+
+- findEmptyColumns()를 다른 곳으로 옮겨야 하는지 판단.
+  --> JSON data 사용하게 되어 있음. 다만 SQL과는 관련 없음. 즉 그냥 DataUtil 안에 overloading function을 만들기
+  --> DataUtil로 옮겨놓음. -->
+
+- PointPossible이 없는 데이터가 있음
+  --> DB에도 비어있는지 확인. --> 비어 있음. --> 어떤 데이터가 비어있는가를 확인하는 method -->
+
+-

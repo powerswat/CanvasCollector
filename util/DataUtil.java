@@ -1,9 +1,10 @@
 package util;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.*;
+
 import org.apache.commons.lang3.math.*;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 /**
  * Created by powerswat on 3/29/17.
@@ -118,6 +119,52 @@ public class DataUtil <T extends Comparable<T>>{
             res.add(resRow);
         }
         return res;
+    }
+
+    // Find a set of columns that have at least one valid value in each of them. (JSONArray data)
+    public ArrayList<T> extractNonEmptyColumns(JSONArray data, ArrayList<T> cols){
+        ArrayList<T> nonEmptyCols = new ArrayList<T>();
+        Hashtable<T, Integer> emptyMap = new Hashtable<T, Integer>();
+
+        // Collect a list of columns that have at least one null value
+        for (int i = 0; i < data.size(); i++) {
+            JSONObject jsonObject = (JSONObject) data.get(i);
+            for (int j = 0; j < cols.size(); j++)
+                if (jsonObject.get(cols.get(j)) == null)
+                    if (emptyMap.containsKey(cols.get(j)))
+                        emptyMap.put(cols.get(j), emptyMap.get(cols.get(j)) + 1);
+                    else
+                        emptyMap.put(cols.get(j), 1);
+        }
+
+        // List a set of columns that contain at least one meaningful value in it
+        for (int i = 0; i < cols.size(); i++)
+            if (!emptyMap.containsKey(cols.get(i)) || (emptyMap.get(cols.get(i)) < data.size()))
+                nonEmptyCols.add(cols.get(i));
+
+        return nonEmptyCols;
+    }
+
+    // Find a set of columns that have at least one valid value in each of them. (ArrayList data)
+    public ArrayList<T> extractNonEmptyColumns(ArrayList<ArrayList<T>> data, List<T> cols){
+        ArrayList<T> nonEmptyCols = new ArrayList<T>();
+        Hashtable<T, Integer> emptyMap = new Hashtable<T, Integer>();
+
+        // Collect a list of columns that have at least one null value
+        for (int i = 0; i < data.size(); i++) {
+            ArrayList<T> element = data.get(i);
+            for (int j = 0; j < element.size(); j++) {
+                if (element.get(j) == null)
+                    System.out.println();
+            }
+        }
+
+        // List a set of columns that contain at least one meaningful value in it
+        for (int i = 0; i < cols.size(); i++)
+            if (!emptyMap.containsKey(cols.get(i)) || (emptyMap.get(cols.get(i)) < data.size()))
+                nonEmptyCols.add(cols.get(i));
+
+        return nonEmptyCols;
     }
 
     // Return unique set of elements

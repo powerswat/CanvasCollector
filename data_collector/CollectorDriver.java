@@ -6,7 +6,6 @@ import util.DBProcessor;
 /**
  * Created by youngsukcho on 2017. 1. 24..
  */
-// TODO: Check visualization at http://bl.ocks.org/KathyZ/c2d4694c953419e0509b
 public class CollectorDriver {
     private static DBProcessor dbProcessor = new DBProcessor();
 
