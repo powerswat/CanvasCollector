@@ -52,7 +52,7 @@ public class TimeUtil {
         DateTime endTime = availability.plusHours((int)Math.ceil(assignment.getHoursPerDay()));
         return new Schedule(student.getId(), assignment.getId(), assignment.getCourseID(),
                 startTime, endTime,
-                assignment.getPointsPossible() / assignment.getNumDays());
+                assignment.getPointsPossible() / assignment.getNumDays(), assignment.getName());
     }
 
     // Check the eligibility of the given schedule

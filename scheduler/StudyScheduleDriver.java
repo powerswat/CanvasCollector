@@ -1,11 +1,13 @@
 package scheduler;
 
 import configure.ConfigHandler;
+import db_integrity.DBDataDriver;
 import util.DBProcessor;
 import util.DataUtil;
 import util.SQLDataUtil;
 import util.SQLProcessor;
 
+import javax.print.DocFlavor;
 import java.util.*;
 
 /**
@@ -20,10 +22,9 @@ public class StudyScheduleDriver {
 
     private static String tableName = "SCHEDULES";
     private static String pkCol = "ID";
-    private static String[] colNames = {"ID", "USER_ID", "COURSE_ID", "ASSIGNMENT_ID",
-                                        "ASSIGNMENT_NAME", "START_TIME", "END_TIME", "PRIORITY"};
-    private static String[] types = {"INT", "INT", "INT", "INT",
-                                     "VARCHAR", "DATETIME", "DATETIME", "INT"};
+    private static String[] colNames;
+    private static String[] types;
+    private static Hashtable<String, String> colTypeTbl = new Hashtable<>();
 
     private static ArrayList<ArrayList<String>> sqlData;
     private static Student[] students;
@@ -35,31 +36,40 @@ public class StudyScheduleDriver {
                 "DUE_AT, POINTS_POSSIBLE " +
                 "FROM ENROLLMENTS AS E INNER JOIN ASSIGNMENTS AS A " +
                 "ON A.COURSE_ID = E.COURSE_ID " +
-                "ORDER BY USER_ID, DUE_AT, POINTS_POSSIBLE, A.CREATED_AT, E.COURSE_ID;";
+                "ORDER BY E.USER_ID, A.DUE_AT, A.POINTS_POSSIBLE, A.CREATED_AT, E.COURSE_ID;";
         String[] items = {"USER_ID", "E.COURSE_ID", "A.ID", "A.NAME", "A.CREATED_AT",
                             "DUE_AT", "POINTS_POSSIBLE"};
+
+        String[] tableNames = {"ASSIGNMENTS", "ENROLLMENTS"};
 
         SQLDataUtil sqlDataUtil = new SQLDataUtil();
         DataUtil dataUtil = new DataUtil();
 
         sqlData = dbProcessor.runSelectQuery(sql, items);
-        if (sqlData.size() > 0) {
-            // Find a list of columns that do not have only null values
-            ArrayList<String> cols = dataUtil.extractNonEmptyColumns(sqlData, Arrays.asList(colNames));
-            // Check the type for each data element in the json format data
-//            Hashtable<String, String> cols_types = sqlDataUtil.checkTypes(cols, sqlData);
+
+        // Get the type of each retrieved column
+        DBDataDriver dbd = new DBDataDriver();
+        colTypeTbl.put("ID", "int(11)");
+        for (String tableName : tableNames) {
+            // Retrieve all the column types of the given raw tables
+            ArrayList<ArrayList<String>> tableCols = dbd.getTableColumns(tableName);
+
+            // Retrieve the column types of the given join table
+            Hashtable<String, String> curTblColumns = dataUtil.retrieveColTypes(tableCols, tableName, items);
+            Set set = curTblColumns.keySet();
+            for (Iterator it = set.iterator(); it.hasNext();) {
+                String key = (String) it.next();
+                String newKey = key.replaceAll("\\.", "_");
+                if (!colTypeTbl.containsKey(key))
+                    colTypeTbl.put(newKey, curTblColumns.get(key));
+            }
         }
-        System.out.println();
     }
 
     // Create a table to store the schedules
     private static void createTable(){
-        Hashtable<String, String> cols_types = new Hashtable<>();
-        for (int i = 0; i < colNames.length; i++)
-            cols_types.put(colNames[i], types[i]);
-
         SQLProcessor sqlProcessor = new SQLProcessor(tableName, pkCol);
-        sqlProcessor.setCols_types(cols_types);
+        sqlProcessor.setCols_types(colTypeTbl);
         String sql = sqlProcessor.makeCreateQuery();
         dbProcessor.runUpdateQuery(sql);
     }
@@ -105,6 +115,19 @@ public class StudyScheduleDriver {
         }
     }
 
+    // Fill column names and types array information for Scheduler instances
+    public static void fillColNamesTypesInfo(){
+        Set set = colTypeTbl.keySet();
+        colNames = new String[colTypeTbl.size()];
+        types = new String[colTypeTbl.size()];
+
+        int i = 0;
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            colNames[i] = (String) it.next();
+            types[i] = colTypeTbl.get(colNames[i++]);
+        }
+    }
+
     // Prepare data set to schedule
     public static void prepareData(){
         // Read the config file and parse it
@@ -120,8 +143,22 @@ public class StudyScheduleDriver {
         if (!dbProcessor.checkDupTable(tableName))
             createTable();
 
+        // Fill column names and types array information for Scheduler instances
+        fillColNamesTypesInfo();
+
         // Fill students' course and assignment information
         fillStudentCourseAssignmentInfo();
+    }
+
+    public static void main(String[] args){
+        // Prepare data set to schedule
+        prepareData();
+
+        // Schedule individual assignments
+        indivScheduler = IndivScheduler.getInstance(cnfgHndlr, dbProcessor, colNames, types);
+        indivScheduler.runScheduler(sqlData, students);
+
+        System.out.println();
     }
 
     public static ConfigHandler getCnfgHndlr() {
@@ -148,16 +185,4 @@ public class StudyScheduleDriver {
         return students;
     }
 
-
-
-    public static void main(String[] args){
-        // Prepare data set to schedule
-        prepareData();
-
-        // Schedule individual assignments
-        indivScheduler = IndivScheduler.getInstance(cnfgHndlr, dbProcessor, colNames, types);
-        indivScheduler.runScheduler(sqlData, students);
-
-        System.out.println();
-    }
 }

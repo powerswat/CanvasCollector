@@ -167,6 +167,25 @@ public class DataUtil <T extends Comparable<T>>{
         return nonEmptyCols;
     }
 
+    // Get the type of given columns in the given table
+    public Hashtable<String, String> retrieveColTypes(ArrayList<ArrayList<String>> tableCols,
+                                     String tableName, String[] columns){
+        Hashtable<String, String> colTypeTbl = new Hashtable<>();
+        for (int i = 0; i < tableCols.size(); i++) {
+            for (String column : columns) {
+                String signature = "";
+                if (column.indexOf(".") >= 0)
+                    signature = column.substring(column.indexOf(".") + 1);
+                else
+                    signature = column;
+
+                if (signature.equals(tableCols.get(i).get(0)))
+                    colTypeTbl.put(column, tableCols.get(i).get(1));
+            }
+        }
+        return colTypeTbl;
+    }
+
     // Return unique set of elements
     public LinkedHashSet<T> getUniqueSet() {
         return uniqueSet;

@@ -29,13 +29,13 @@ public class IndivScheduler implements SchedulerFactory{
         if (instance == null){
             synchronized (IndivScheduler.class){
                 if (instance == null)
-                    instance = new IndivScheduler(cnfgHndlr, dbProcessor, colNames, types);
+                    instance = new IndivScheduler(dbProcessor, colNames, types);
             }
         }
         return instance;
     }
 
-    public IndivScheduler(ConfigHandler cnfgHndlr, DBProcessor dbProcessor, String[] colNames, String[] types){
+    public IndivScheduler(DBProcessor dbProcessor, String[] colNames, String[] types){
         this.dbProcessor = dbProcessor;
         this.colNames = colNames;
         this.types = types;
@@ -50,8 +50,6 @@ public class IndivScheduler implements SchedulerFactory{
         generateScheduleTable();
 
         insertIntoTable();
-
-        System.out.println();
     }
 
     // Generate a schedule table for each student.
@@ -108,12 +106,14 @@ public class IndivScheduler implements SchedulerFactory{
                 int assignmentID = schedules.get(j).getAssignmentID();
                 String stTimeStr = fmt.print(schedules.get(j).getStartTime());
                 String edTimeStr = fmt.print(schedules.get(j).getEndTime());
+                float pointsPerDay = schedules.get(j).getPointPerDay();
                 // Default value
-                int priority = -1;
+//                int priority = -1;
 
-                sb.append("(" + Integer.toString(id) + ", " + Integer.toString(userID) + ", " +
-                            Integer.toString(courseID) + ", " + Integer.toString(assignmentID) +
-                            ", '" + stTimeStr + "', '" + edTimeStr + "', " + priority + ")");
+                sb.append("(" + Float.toString(pointsPerDay) + ", " + Integer.toString(id) + ", "
+                        + Integer.toString(userID) + ", " + Integer.toString(courseID) + ", '"
+                        + stTimeStr + "', '" + schedules.get(j).getName() + "', "
+                        + Integer.toString(assignmentID) + ", '"  + edTimeStr + "')");
                 if (j < schedules.size()-1)
                     sb.append(", ");
                 else

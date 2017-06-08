@@ -10,12 +10,12 @@ import org.joda.time.format.DateTimeFormatter;
 public class Assignment {
     private int id;
     private int courseID;
-    private int priority;
     private DateTime createdAt;
     private DateTime dueAt;
     private int pointsPossible;
     private int numDays;
     private float hoursPerDay;
+    private String name;
 
     private static DateTimeFormatter timeFormatter
             = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.s");
@@ -23,7 +23,7 @@ public class Assignment {
     public Assignment(int id, int courseID, String name, String createdAt, String dueAt, int pointsPossible){
         this.id = id;
         this.courseID = courseID;
-        String name1 = name;
+        this.name = name;
         this.createdAt = timeFormatter.parseDateTime(createdAt);
         this.dueAt = timeFormatter.parseDateTime(dueAt);
         this.pointsPossible = pointsPossible;
@@ -60,5 +60,9 @@ public class Assignment {
 
     public int getCourseID() {
         return courseID;
+    }
+
+    public String getName() {
+        return name;
     }
 }

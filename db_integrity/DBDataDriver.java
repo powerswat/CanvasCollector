@@ -3,7 +3,6 @@ package db_integrity;
 import configure.ConfigHandler;
 import util.DBProcessor;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -37,6 +36,22 @@ public class DBDataDriver {
         return res;
     }
 
+    // Replace null or empty values with valid default values.
+    public static void placeDefaultValues(String tableName, String column, String curType){
+        StringBuilder sb = new StringBuilder();
+        sb.append("UPDATE " + tableName + " SET " + column + " = ");
+        if (curType.toLowerCase().contains("char"))
+            sb.append("'None' WHERE " + column + " IS NULL OR "
+                    + column + " = '' OR " + column + " = 'null';");
+        else if (curType.toLowerCase().contains("int") || curType.toLowerCase().contains("float")
+                || curType.toLowerCase().contains("double"))
+            sb.append("0 WHERE " + column + " IS NULL;");
+        else
+            return;
+        dbProcessor.runUpdateQuery(sb.toString());
+    }
+
+    // Main driver
     public static void main(String[] args){
         // Connect to DB
         connectDataBase();
@@ -50,9 +65,24 @@ public class DBDataDriver {
             tablesWithCols.add(getTableColumns(tableName));
 
         // Replace null or empty values in the table with given default values
+        for (int i = 0; i < tableNames.size(); i++) {
+            for (ArrayList<String> column : tablesWithCols.get(i)) {
+                String curType = column.get(1);
+                if (curType.toLowerCase().contains("int") || curType.toLowerCase().contains("float") ||
+                        curType.toLowerCase().contains("double") || curType.toLowerCase().contains("char"))
+                    placeDefaultValues(tableNames.get(i), column.get(0), curType);
+            }
+        }
+        String str = "COMMIT;";
+        dbProcessor.runUpdateQuery(str);
+        System.out.println();
     }
 
     public static DBProcessor getDbProcessor() {
         return dbProcessor;
+    }
+
+    public static void setDbProcessor(DBProcessor dbProcessor) {
+        DBDataDriver.dbProcessor = dbProcessor;
     }
 }

@@ -12,15 +12,17 @@ public class Schedule {
     private DateTime startTime;
     private DateTime endTime;
     private float pointPerDay;
+    private String name;
 
     public Schedule(int studentID, int assignmentID, int courseID,
-                    DateTime startTime, DateTime endTime, float pointPerDay){
+                    DateTime startTime, DateTime endTime, float pointPerDay, String name){
         this.studentID = studentID;
         this.assignmentID = assignmentID;
         this.courseID = courseID;
         this.startTime = startTime;
         this.endTime = endTime;
         this.pointPerDay = pointPerDay;
+        this.name = name;
     }
 
     public DateTime getStartTime() {
@@ -41,5 +43,13 @@ public class Schedule {
 
     public int getCourseID() {
         return courseID;
+    }
+
+    public float getPointPerDay() {
+        return pointPerDay;
+    }
+
+    public String getName() {
+        return name;
     }
 }
