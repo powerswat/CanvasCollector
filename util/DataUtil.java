@@ -1,10 +1,12 @@
 package util;
 
+import java.io.*;
 import java.util.*;
 
 import org.apache.commons.lang3.math.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import viz_generator.VizFormat;
 
 /**
  * Created by powerswat on 3/29/17.
@@ -184,6 +186,26 @@ public class DataUtil <T extends Comparable<T>>{
             }
         }
         return colTypeTbl;
+    }
+
+    // Save the generated visualization format.
+    public void saveData(ArrayList<VizFormat> data, String filename){
+        try {
+            BufferedWriter bw = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(filename)));
+            for (VizFormat element: data) {
+                bw.write(element.getDate() + "\t");
+                for (String name: element.getNames())
+                    bw.write(name + "\r\n");
+                bw.write("\t");
+//                bw.write();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     // Return unique set of elements

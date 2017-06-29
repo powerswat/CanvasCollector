@@ -11,11 +11,14 @@ import java.util.ArrayList;
  * Created by powerswat on 4/23/17.
  */
 public class TimeUtil {
+    private static int[] dayPreference;
+    private static int[] hourPreference;
+
     public Schedule findEarliestAvailability(Student student, Assignment assignment, int kDays){
         DateTime earliestTime
                 = assignment.getCreatedAt().plusDays(1+kDays).minuteOfDay().setCopy(0);
-        int[] dayPreference = student.getWorkDayPreference();
-        int[] hourPreference = student.getWorkHourPreference();
+        dayPreference = student.getWorkDayPreference();
+        hourPreference = student.getWorkHourPreference();
 
         // Iterate until it finds the preferred day
         for (int i = 1; i < dayPreference.length; i++) {
@@ -55,10 +58,22 @@ public class TimeUtil {
                 assignment.getPointsPossible() / assignment.getNumDays(), assignment.getName());
     }
 
+    // Check the selected time is in the current user's preferred time
+    public boolean isInPreference(DateTime startTime){
+        int startHour = startTime.getHourOfDay();
+        int dayNum = startTime.getDayOfWeek();
+
+        if (dayPreference[dayNum] < 0 || hourPreference[startHour] < 0)
+            return false;
+
+        return true;
+    }
+
     // Check the eligibility of the given schedule
     public boolean isEligible(Student student, Schedule schedule){
         // Check whether there is no overlapped schedule
-        if(!isOverlapped(student.getSchedules(), schedule.getStartTime(), schedule.getEndTime()))
+        if(!isOverlapped(student.getSchedules(), schedule.getStartTime(), schedule.getEndTime())
+                && isInPreference(schedule.getStartTime()))
             return true;
 
         return false;
